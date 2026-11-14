@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The shaders of the core's tests: a post effect and a shader calling the whole shader library. -->
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS8981;CS0649;CS0414</NoWarn>
+    <RootNamespace>HelixEngine.Rendering.CoreTestShaders</RootNamespace>
+    <AssemblyName>Helix.RenderPipelines.Core.TestShaders</AssemblyName>
+    <Deterministic>true</Deterministic>
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <PropertyGroup>
+    <HelixShadersDir Condition="'$(HelixShadersDir)' == ''">$(MSBuildThisFileDirectory)../../External/Helix.Shaders</HelixShadersDir>
+    <HelixEngineDir Condition="'$(HelixEngineDir)' == ''">$(MSBuildThisFileDirectory)../../External/Helix.Engine</HelixEngineDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(HelixShadersDir)/Source/HelixEngine.Shaders/HelixEngine.Shaders.csproj" />
+    <ProjectReference Include="$(HelixEngineDir)/Shaders/HelixEngine.BuiltinShaders.csproj" />
+    <ProjectReference Include="../../ShaderLibrary/Helix.RenderPipelines.Core.ShaderLibrary.csproj" />
+  </ItemGroup>
+</Project>

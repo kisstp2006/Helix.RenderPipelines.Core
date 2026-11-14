@@ -1,0 +1,517 @@
+type,member,signature
+Rendering.BaseCommandBuffer,BeginSample,void BeginSample(string)
+Rendering.BaseCommandBuffer,DisableKeyword,void DisableKeyword(ref GlobalKeyword)
+Rendering.BaseCommandBuffer,DisableShaderKeyword,void DisableShaderKeyword(string)
+Rendering.BaseCommandBuffer,EnableKeyword,void EnableKeyword(ref GlobalKeyword)
+Rendering.BaseCommandBuffer,EnableShaderKeyword,void EnableShaderKeyword(string)
+Rendering.BaseCommandBuffer,EndSample,void EndSample(string)
+Rendering.BaseCommandBuffer,SetGlobalColor,"void SetGlobalColor(int, Color)"
+Rendering.BaseCommandBuffer,SetGlobalFloat,"void SetGlobalFloat(int, float) / void SetGlobalFloat(string, float)"
+Rendering.BaseCommandBuffer,SetGlobalFloatArray,"void SetGlobalFloatArray(int, float[])"
+Rendering.BaseCommandBuffer,SetGlobalInt,"void SetGlobalInt(int, int)"
+Rendering.BaseCommandBuffer,SetGlobalInteger,"void SetGlobalInteger(int, int)"
+Rendering.BaseCommandBuffer,SetGlobalMatrix,"void SetGlobalMatrix(int, Matrix4x4)"
+Rendering.BaseCommandBuffer,SetGlobalMatrixArray,"void SetGlobalMatrixArray(int, Matrix4x4[])"
+Rendering.BaseCommandBuffer,SetGlobalTexture,"void SetGlobalTexture(int, RenderTargetIdentifier) / void SetGlobalTexture(string, RenderTargetIdentifier)"
+Rendering.BaseCommandBuffer,SetGlobalVector,"void SetGlobalVector(int, Vector4) / void SetGlobalVector(string, Vector4)"
+Rendering.BaseCommandBuffer,SetGlobalVectorArray,"void SetGlobalVectorArray(int, Vector4[])"
+Rendering.BaseCommandBuffer,SetKeyword,"void SetKeyword(ref GlobalKeyword, bool)"
+Rendering.BaseCommandBuffer,name,string name { get; }
+Rendering.BaseCommandBuffer,sizeInBytes,int sizeInBytes { get; }
+Rendering.Blitter,BlitCameraTexture,"static void BlitCameraTexture(CommandBuffer, RTHandle, RTHandle, float = 0, bool = False) / static void BlitCameraTexture(CommandBuffer, RTHandle, RTHandle, Vector4, float = 0, bool = False) / static void BlitCameraTexture(CommandBuffer, RTHandle, RTHandle, Rect, float = 0, bool = False) / static void BlitCameraTexture(CommandBuffer, RTHandle, RTHandle, Material, int) / static void BlitCameraTexture(CommandBuffer, RTHandle, RTHandle, RenderBufferLoadAction, RenderBufferStoreAction, Material, int) / static void BlitCameraTexture(UnsafeCommandBuffer, RTHandle, RTHandle, float = 0, bool = False) / static void BlitCameraTexture(UnsafeCommandBuffer, RTHandle, RTHandle, Material, int)"
+Rendering.Blitter,BlitColorAndDepth,"static void BlitColorAndDepth(CommandBuffer, Texture, RenderTexture, Vector4, float, bool)"
+Rendering.Blitter,BlitQuad,"static void BlitQuad(RasterCommandBuffer, Texture, Vector4, Vector4, int, bool) / static void BlitQuad(CommandBuffer, Texture, Vector4, Vector4, int, bool)"
+Rendering.Blitter,BlitTexture,"static void BlitTexture(CommandBuffer, RTHandle, Vector4, float, bool) / static void BlitTexture(CommandBuffer, RTHandle, Vector4, Material, int) / static void BlitTexture(CommandBuffer, RenderTargetIdentifier, Vector4, Material, int) / static void BlitTexture(CommandBuffer, Vector4, Material, int) / static void BlitTexture(CommandBuffer, RenderTargetIdentifier, RenderTargetIdentifier, Material, int) / static void BlitTexture(CommandBuffer, RenderTargetIdentifier, RenderTargetIdentifier, RenderBufferLoadAction, RenderBufferStoreAction, Material, int) / static void BlitTexture(RasterCommandBuffer, RTHandle, Vector4, float, bool) / static void BlitTexture(RasterCommandBuffer, RTHandle, Vector4, Material, int) / static void BlitTexture(RasterCommandBuffer, RenderTargetIdentifier, Vector4, Material, int) / static void BlitTexture(RasterCommandBuffer, Vector4, Material, int)"
+Rendering.Blitter,BlitTexture2D,"static void BlitTexture2D(CommandBuffer, RTHandle, Vector4, float, bool) / static void BlitTexture2D(RasterCommandBuffer, RTHandle, Vector4, float, bool)"
+Rendering.Blitter,Cleanup,static void Cleanup()
+Rendering.Blitter,GetBlitMaterial,"static Material GetBlitMaterial(TextureDimension, bool = False)"
+Rendering.Blitter,Initialize,"static void Initialize(Shader, Shader)"
+Rendering.BoolParameter,.ctor,"BoolParameter(bool, bool = False)"
+Rendering.ClampedFloatParameter,.ctor,"ClampedFloatParameter(float, float, float, bool = False)"
+Rendering.ClampedFloatParameter,max,float max
+Rendering.ClampedFloatParameter,min,float min
+Rendering.ClampedFloatParameter,value,float value { get; set; }
+Rendering.ClampedIntParameter,.ctor,"ClampedIntParameter(int, int, int, bool = False)"
+Rendering.ClampedIntParameter,max,int max
+Rendering.ClampedIntParameter,min,int min
+Rendering.ClampedIntParameter,value,int value { get; set; }
+Rendering.ClearFlag,All,Rendering.ClearFlag.All = 7
+Rendering.ClearFlag,Color,Rendering.ClearFlag.Color = 1
+Rendering.ClearFlag,ColorStencil,Rendering.ClearFlag.ColorStencil = 5
+Rendering.ClearFlag,Depth,Rendering.ClearFlag.Depth = 2
+Rendering.ClearFlag,DepthStencil,Rendering.ClearFlag.DepthStencil = 6
+Rendering.ClearFlag,None,Rendering.ClearFlag.None = 0
+Rendering.ClearFlag,Stencil,Rendering.ClearFlag.Stencil = 4
+Rendering.ColorParameter,.ctor,"ColorParameter(Color, bool = False) / ColorParameter(Color, bool, bool, bool, bool = False)"
+Rendering.ColorParameter,Interp,"void Interp(Color, Color, float)"
+Rendering.ColorParameter,hdr,bool hdr
+Rendering.ColorParameter,showAlpha,bool showAlpha
+Rendering.ColorParameter,showEyeDropper,bool showEyeDropper
+Rendering.CommandBufferHelpers,GetNativeCommandBuffer,static CommandBuffer GetNativeCommandBuffer(UnsafeCommandBuffer)
+Rendering.CoreUtils,ClearRenderTarget,"static void ClearRenderTarget(CommandBuffer, ClearFlag, Color)"
+Rendering.CoreUtils,CreateEngineMaterial,static Material CreateEngineMaterial(string) / static Material CreateEngineMaterial(Shader)
+Rendering.CoreUtils,Destroy,static void Destroy(Object) / static void Destroy(params Object[])
+Rendering.CoreUtils,DrawFullScreen,"static void DrawFullScreen(CommandBuffer, Material, MaterialPropertyBlock = null, int = 0) / static void DrawFullScreen(CommandBuffer, Material, RenderTargetIdentifier, MaterialPropertyBlock = null, int = 0) / static void DrawFullScreen(CommandBuffer, Material, RenderTargetIdentifier, RenderTargetIdentifier, MaterialPropertyBlock = null, int = 0)"
+Rendering.CoreUtils,GetRenderTargetAutoName,"static string GetRenderTargetAutoName(int, int, int, RenderTextureFormat, string, bool = False, bool = False, MSAASamples = None) / static string GetRenderTargetAutoName(int, int, int, GraphicsFormat, string, bool = False, bool = False, MSAASamples = None) / static string GetRenderTargetAutoName(int, int, int, GraphicsFormat, TextureDimension, string, bool = False, bool = False, MSAASamples = None, bool = False)"
+Rendering.CoreUtils,GetTextureAutoName,"static string GetTextureAutoName(int, int, TextureFormat, TextureDimension = None, string = , bool = False, int = 0) / static string GetTextureAutoName(int, int, GraphicsFormat, TextureDimension = None, string = , bool = False, int = 0)"
+Rendering.CoreUtils,SetKeyword,"static void SetKeyword(CommandBuffer, string, bool) / static void SetKeyword(Material, string, bool) / static void SetKeyword(Material, LocalKeyword, bool)"
+Rendering.CoreUtils,SetRenderTarget,"static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, ClearFlag, Color, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, ClearFlag = None, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, RenderTargetIdentifier, ClearFlag, Color, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, RenderTargetIdentifier, ClearFlag = None, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier[], RenderTargetIdentifier, ClearFlag = None) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier[], RenderTargetIdentifier, ClearFlag, Color) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, RenderBufferLoadAction, RenderBufferStoreAction, ClearFlag, Color) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, RenderBufferLoadAction, RenderBufferStoreAction, ClearFlag) / static void SetRenderTarget(CommandBuffer, RTHandle, ClearFlag, Color, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RTHandle, ClearFlag = None, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RTHandle, RTHandle, ClearFlag, Color, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RTHandle, RTHandle, ClearFlag = None, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RTHandle, RenderBufferLoadAction, RenderBufferStoreAction, ClearFlag, Color)"
+Rendering.CoreUtils,SetViewport,"static void SetViewport(CommandBuffer, RTHandle, int = 0)"
+Rendering.CoreUtils,blackTexture,static Texture2D blackTexture { get; }
+Rendering.CoreUtils,whiteTexture,static Texture2D whiteTexture { get; }
+Rendering.DebugManager,GetItem,DebugUI.Widget GetItem(string)
+Rendering.DebugManager,GetItems,DebugUI.Widget[] GetItems(DebugUI.Flags)
+Rendering.DebugManager,GetPanel,"DebugUI.Panel GetPanel(string, bool = False, int = 0, bool = False)"
+Rendering.DebugManager,GetState,int GetState()
+Rendering.DebugManager,PanelIndex,int PanelIndex(string)
+Rendering.DebugManager,RefreshEditor,void RefreshEditor()
+Rendering.DebugManager,RegisterData,void RegisterData(IDebugData)
+Rendering.DebugManager,RemovePanel,void RemovePanel(string) / void RemovePanel(DebugUI.Panel)
+Rendering.DebugManager,Reset,void Reset()
+Rendering.DebugManager,UnregisterData,void UnregisterData(IDebugData)
+Rendering.DebugManager,displayEditorUI,bool displayEditorUI { get; }
+Rendering.DebugManager,displayRuntimeUI,bool displayRuntimeUI { get; set; }
+Rendering.DebugManager,instance,static DebugManager instance { get; }
+Rendering.DebugManager,isAnyDebugUIActive,bool isAnyDebugUIActive { get; }
+Rendering.DebugManager,onDisplayRuntimeUIChanged,event Action<bool> onDisplayRuntimeUIChanged
+Rendering.DebugManager,onSetDirty,event Action<bool> onSetDirty
+Rendering.DebugManager,panels,ReadOnlyCollection<DebugUI.Panel> panels { get; }
+Rendering.DebugManager,resetData,event Action resetData
+Rendering.DebugUI,.ctor,DebugUI()
+Rendering.DebugUI.BoolField,.ctor,BoolField()
+Rendering.DebugUI.Button,.ctor,Button()
+Rendering.DebugUI.Button,action,Action action { get; set; }
+Rendering.DebugUI.ColorField,.ctor,ColorField()
+Rendering.DebugUI.ColorField,ValidateValue,Color ValidateValue(Color)
+Rendering.DebugUI.ColorField,decimals,int decimals
+Rendering.DebugUI.ColorField,hdr,bool hdr
+Rendering.DebugUI.ColorField,incStep,float incStep
+Rendering.DebugUI.ColorField,incStepMult,float incStepMult
+Rendering.DebugUI.ColorField,showAlpha,bool showAlpha
+Rendering.DebugUI.ColorField,showPicker,bool showPicker
+Rendering.DebugUI.Container,.ctor,"Container() / Container(string, ObservableList<DebugUI.Widget>)"
+Rendering.DebugUI.Container,children,ObservableList<DebugUI.Widget> children { get; }
+Rendering.DebugUI.Container,panel,DebugUI.Panel panel { get; }
+Rendering.DebugUI.EnumField,.ctor,EnumField()
+Rendering.DebugUI.EnumField,ValidateValue,int ValidateValue(int)
+Rendering.DebugUI.EnumField,autoEnum,Type autoEnum { set; }
+Rendering.DebugUI.EnumField,currentIndex,int currentIndex { get; }
+Rendering.DebugUI.EnumField,enumNames,string[] enumNames
+Rendering.DebugUI.EnumField,enumValues,int[] enumValues
+Rendering.DebugUI.Field,GetValue,T GetValue()
+Rendering.DebugUI.Field,SetValue,void SetValue(T)
+Rendering.DebugUI.Field,ValidateValue,T ValidateValue(T)
+Rendering.DebugUI.Field,getter,Func<T> getter { get; set; }
+Rendering.DebugUI.Field,onValueChanged,"Action<DebugUI.Field, T> onValueChanged"
+Rendering.DebugUI.Field,setter,Action<T> setter { get; set; }
+Rendering.DebugUI.Flags,EditorForceUpdate,Rendering.DebugUI.Flags.EditorForceUpdate = 8
+Rendering.DebugUI.Flags,EditorOnly,Rendering.DebugUI.Flags.EditorOnly = 2
+Rendering.DebugUI.Flags,FrequentlyUsed,Rendering.DebugUI.Flags.FrequentlyUsed = 16
+Rendering.DebugUI.Flags,None,Rendering.DebugUI.Flags.None = 0
+Rendering.DebugUI.Flags,RuntimeOnly,Rendering.DebugUI.Flags.RuntimeOnly = 4
+Rendering.DebugUI.FloatField,.ctor,FloatField()
+Rendering.DebugUI.FloatField,ValidateValue,float ValidateValue(float)
+Rendering.DebugUI.FloatField,decimals,int decimals
+Rendering.DebugUI.FloatField,incStep,float incStep
+Rendering.DebugUI.FloatField,incStepMult,float incStepMult
+Rendering.DebugUI.FloatField,max,Func<float> max
+Rendering.DebugUI.FloatField,min,Func<float> min
+Rendering.DebugUI.Foldout,.ctor,"Foldout() / Foldout(string, ObservableList<DebugUI.Widget>, string[] = null)"
+Rendering.DebugUI.Foldout,GetValue,bool GetValue()
+Rendering.DebugUI.Foldout,SetValue,void SetValue(object) / void SetValue(bool)
+Rendering.DebugUI.Foldout,ValidateValue,object ValidateValue(object)
+Rendering.DebugUI.Foldout,columnLabels,string[] columnLabels
+Rendering.DebugUI.Foldout,isReadOnly,bool isReadOnly { get; }
+Rendering.DebugUI.Foldout,opened,bool opened
+Rendering.DebugUI.IContainer,children,ObservableList<DebugUI.Widget> children { get; }
+Rendering.DebugUI.IContainer,displayName,string displayName { get; set; }
+Rendering.DebugUI.IContainer,queryPath,string queryPath { get; }
+Rendering.DebugUI.IValueField,GetValue,object GetValue()
+Rendering.DebugUI.IValueField,SetValue,void SetValue(object)
+Rendering.DebugUI.IValueField,ValidateValue,object ValidateValue(object)
+Rendering.DebugUI.IntField,.ctor,IntField()
+Rendering.DebugUI.IntField,ValidateValue,int ValidateValue(int)
+Rendering.DebugUI.IntField,incStep,int incStep
+Rendering.DebugUI.IntField,intStepMult,int intStepMult
+Rendering.DebugUI.IntField,max,Func<int> max
+Rendering.DebugUI.IntField,min,Func<int> min
+Rendering.DebugUI.Panel,.ctor,Panel()
+Rendering.DebugUI.Panel,CompareTo,int CompareTo(DebugUI.Panel)
+Rendering.DebugUI.Panel,Contains,bool Contains(string)
+Rendering.DebugUI.Panel,SetDirty,void SetDirty()
+Rendering.DebugUI.Panel,children,ObservableList<DebugUI.Widget> children { get; }
+Rendering.DebugUI.Panel,displayName,string displayName { get; set; }
+Rendering.DebugUI.Panel,flags,DebugUI.Flags flags { get; set; }
+Rendering.DebugUI.Panel,groupIndex,int groupIndex { get; set; }
+Rendering.DebugUI.Panel,isEditorOnly,bool isEditorOnly { get; }
+Rendering.DebugUI.Panel,isRuntimeOnly,bool isRuntimeOnly { get; }
+Rendering.DebugUI.Panel,onSetDirty,event Action<DebugUI.Panel> onSetDirty
+Rendering.DebugUI.Panel,queryPath,string queryPath { get; }
+Rendering.DebugUI.UIntField,.ctor,UIntField()
+Rendering.DebugUI.UIntField,ValidateValue,uint ValidateValue(uint)
+Rendering.DebugUI.UIntField,incStep,uint incStep
+Rendering.DebugUI.UIntField,intStepMult,uint intStepMult
+Rendering.DebugUI.UIntField,max,Func<uint> max
+Rendering.DebugUI.UIntField,min,Func<uint> min
+Rendering.DebugUI.Value,.ctor,Value()
+Rendering.DebugUI.Value,FormatString,string FormatString(object)
+Rendering.DebugUI.Value,GetValue,object GetValue()
+Rendering.DebugUI.Value,formatString,string formatString
+Rendering.DebugUI.Value,getter,Func<object> getter { get; set; }
+Rendering.DebugUI.Value,refreshRate,float refreshRate
+Rendering.DebugUI.Vector2Field,.ctor,Vector2Field()
+Rendering.DebugUI.Vector3Field,.ctor,Vector3Field()
+Rendering.DebugUI.Vector4Field,.ctor,Vector4Field()
+Rendering.DebugUI.Widget,displayName,string displayName { get; set; }
+Rendering.DebugUI.Widget,flags,DebugUI.Flags flags { get; set; }
+Rendering.DebugUI.Widget,isEditorOnly,bool isEditorOnly { get; }
+Rendering.DebugUI.Widget,isHidden,bool isHidden { get; }
+Rendering.DebugUI.Widget,isHiddenCallback,Func<bool> isHiddenCallback
+Rendering.DebugUI.Widget,isRuntimeOnly,bool isRuntimeOnly { get; }
+Rendering.DebugUI.Widget,nameAndTooltip,DebugUI.Widget.NameAndTooltip nameAndTooltip { set; }
+Rendering.DebugUI.Widget,panel,DebugUI.Panel panel { get; }
+Rendering.DebugUI.Widget,parent,DebugUI.IContainer parent { get; }
+Rendering.DebugUI.Widget,queryPath,string queryPath { get; }
+Rendering.DebugUI.Widget,tooltip,string tooltip { get; set; }
+Rendering.DebugUI.Widget.NameAndTooltip,name,string name
+Rendering.DebugUI.Widget.NameAndTooltip,tooltip,string tooltip
+Rendering.DebugUITextView,Render,static string Render() / static string Render(DebugUI.Panel)
+Rendering.DepthBits,Depth16,Rendering.DepthBits.Depth16 = 16
+Rendering.DepthBits,Depth24,Rendering.DepthBits.Depth24 = 24
+Rendering.DepthBits,Depth32,Rendering.DepthBits.Depth32 = 32
+Rendering.DepthBits,Depth8,Rendering.DepthBits.Depth8 = 8
+Rendering.DepthBits,None,Rendering.DepthBits.None = 0
+Rendering.EnumParameter,.ctor,"EnumParameter(T, bool = False)"
+Rendering.FloatParameter,.ctor,"FloatParameter(float, bool = False)"
+Rendering.FloatParameter,Interp,"void Interp(float, float, float)"
+Rendering.FloatRangeParameter,.ctor,"FloatRangeParameter(Vector2, float, float, bool = False)"
+Rendering.FloatRangeParameter,Interp,"void Interp(Vector2, Vector2, float)"
+Rendering.FloatRangeParameter,max,float max
+Rendering.FloatRangeParameter,min,float min
+Rendering.FloatRangeParameter,value,Vector2 value { get; set; }
+Rendering.IDebugData,GetReset,Action GetReset()
+Rendering.IPostProcessComponent,IsActive,bool IsActive()
+Rendering.IntParameter,.ctor,"IntParameter(int, bool = False)"
+Rendering.IntParameter,Interp,"void Interp(int, int, float)"
+Rendering.LayerMaskParameter,.ctor,"LayerMaskParameter(LayerMask, bool = False)"
+Rendering.ListChangedEventArgs,.ctor,"ListChangedEventArgs(int, T)"
+Rendering.ListChangedEventArgs,index,int index
+Rendering.ListChangedEventArgs,item,T item
+Rendering.MSAASamples,MSAA2x,Rendering.MSAASamples.MSAA2x = 2
+Rendering.MSAASamples,MSAA4x,Rendering.MSAASamples.MSAA4x = 4
+Rendering.MSAASamples,MSAA8x,Rendering.MSAASamples.MSAA8x = 8
+Rendering.MSAASamples,None,Rendering.MSAASamples.None = 1
+Rendering.MaxFloatParameter,.ctor,"MaxFloatParameter(float, float, bool = False)"
+Rendering.MaxFloatParameter,max,float max
+Rendering.MaxFloatParameter,value,float value { get; set; }
+Rendering.MaxIntParameter,.ctor,"MaxIntParameter(int, int, bool = False)"
+Rendering.MaxIntParameter,max,int max
+Rendering.MaxIntParameter,value,int value { get; set; }
+Rendering.MinFloatParameter,.ctor,"MinFloatParameter(float, float, bool = False)"
+Rendering.MinFloatParameter,min,float min
+Rendering.MinFloatParameter,value,float value { get; set; }
+Rendering.MinIntParameter,.ctor,"MinIntParameter(int, int, bool = False)"
+Rendering.MinIntParameter,min,int min
+Rendering.MinIntParameter,value,int value { get; set; }
+Rendering.NoInterpClampedFloatParameter,.ctor,"NoInterpClampedFloatParameter(float, float, float, bool = False)"
+Rendering.NoInterpClampedFloatParameter,max,float max
+Rendering.NoInterpClampedFloatParameter,min,float min
+Rendering.NoInterpClampedFloatParameter,value,float value { get; set; }
+Rendering.NoInterpClampedIntParameter,.ctor,"NoInterpClampedIntParameter(int, int, int, bool = False)"
+Rendering.NoInterpClampedIntParameter,max,int max
+Rendering.NoInterpClampedIntParameter,min,int min
+Rendering.NoInterpClampedIntParameter,value,int value { get; set; }
+Rendering.NoInterpColorParameter,.ctor,"NoInterpColorParameter(Color, bool = False) / NoInterpColorParameter(Color, bool, bool, bool, bool = False)"
+Rendering.NoInterpColorParameter,hdr,bool hdr
+Rendering.NoInterpColorParameter,showAlpha,bool showAlpha
+Rendering.NoInterpColorParameter,showEyeDropper,bool showEyeDropper
+Rendering.NoInterpFloatParameter,.ctor,"NoInterpFloatParameter(float, bool = False)"
+Rendering.NoInterpFloatRangeParameter,.ctor,"NoInterpFloatRangeParameter(Vector2, float, float, bool = False)"
+Rendering.NoInterpFloatRangeParameter,max,float max
+Rendering.NoInterpFloatRangeParameter,min,float min
+Rendering.NoInterpFloatRangeParameter,value,Vector2 value { get; set; }
+Rendering.NoInterpIntParameter,.ctor,"NoInterpIntParameter(int, bool = False)"
+Rendering.NoInterpMaxFloatParameter,.ctor,"NoInterpMaxFloatParameter(float, float, bool = False)"
+Rendering.NoInterpMaxFloatParameter,max,float max
+Rendering.NoInterpMaxFloatParameter,value,float value { get; set; }
+Rendering.NoInterpMaxIntParameter,.ctor,"NoInterpMaxIntParameter(int, int, bool = False)"
+Rendering.NoInterpMaxIntParameter,max,int max
+Rendering.NoInterpMaxIntParameter,value,int value { get; set; }
+Rendering.NoInterpMinFloatParameter,.ctor,"NoInterpMinFloatParameter(float, float, bool = False)"
+Rendering.NoInterpMinFloatParameter,min,float min
+Rendering.NoInterpMinFloatParameter,value,float value { get; set; }
+Rendering.NoInterpMinIntParameter,.ctor,"NoInterpMinIntParameter(int, int, bool = False)"
+Rendering.NoInterpMinIntParameter,min,int min
+Rendering.NoInterpMinIntParameter,value,int value { get; set; }
+Rendering.NoInterpRenderTextureParameter,.ctor,"NoInterpRenderTextureParameter(RenderTexture, bool = False)"
+Rendering.NoInterpTextureParameter,.ctor,"NoInterpTextureParameter(Texture, bool = False)"
+Rendering.NoInterpVector2Parameter,.ctor,"NoInterpVector2Parameter(Vector2, bool = False)"
+Rendering.NoInterpVector3Parameter,.ctor,"NoInterpVector3Parameter(Vector3, bool = False)"
+Rendering.NoInterpVector4Parameter,.ctor,"NoInterpVector4Parameter(Vector4, bool = False)"
+Rendering.ObjectParameter,.ctor,ObjectParameter(T)
+Rendering.ObjectParameter,Interp,"void Interp(T, T, float)"
+Rendering.ObjectParameter,overrideState,bool overrideState { get; set; }
+Rendering.ObservableList,.ctor,ObservableList() / ObservableList(int) / ObservableList(IEnumerable<T>)
+Rendering.ObservableList,Add,void Add(T) / void Add(params T[])
+Rendering.ObservableList,Clear,void Clear()
+Rendering.ObservableList,Contains,bool Contains(T)
+Rendering.ObservableList,CopyTo,"void CopyTo(T[], int)"
+Rendering.ObservableList,Count,int Count { get; }
+Rendering.ObservableList,GetEnumerator,IEnumerator<T> GetEnumerator()
+Rendering.ObservableList,IndexOf,int IndexOf(T)
+Rendering.ObservableList,Insert,"void Insert(int, T)"
+Rendering.ObservableList,IsReadOnly,bool IsReadOnly { get; }
+Rendering.ObservableList,ItemAdded,"event Action<ObservableList, ListChangedEventArgs<T>> ItemAdded"
+Rendering.ObservableList,ItemRemoved,"event Action<ObservableList, ListChangedEventArgs<T>> ItemRemoved"
+Rendering.ObservableList,Remove,bool Remove(T) / int Remove(params T[])
+Rendering.ObservableList,RemoveAt,void RemoveAt(int)
+Rendering.ObservableList,this[],T this[][int] { get; set; }
+Rendering.PostProcessInjectionPoint,AfterOpaqueAndSky,Rendering.PostProcessInjectionPoint.AfterOpaqueAndSky = 0
+Rendering.PostProcessInjectionPoint,AfterPostProcess,Rendering.PostProcessInjectionPoint.AfterPostProcess = 2
+Rendering.PostProcessInjectionPoint,BeforePostProcess,Rendering.PostProcessInjectionPoint.BeforePostProcess = 1
+Rendering.PostProcessPasses,.ctor,PostProcessPasses()
+Rendering.PostProcessPasses,ActiveComponents,"List<PostProcessVolumeComponent> ActiveComponents(VolumeStack, PostProcessInjectionPoint)"
+Rendering.PostProcessPasses,Dispose,void Dispose()
+Rendering.PostProcessPasses,Record,"TextureHandle Record(RenderGraph, VolumeStack, PostProcessInjectionPoint, TextureHandle)"
+Rendering.PostProcessPasses,order,List<Type> order { get; }
+Rendering.PostProcessVolumeComponent,Cleanup,void Cleanup()
+Rendering.PostProcessVolumeComponent,IsActive,bool IsActive()
+Rendering.PostProcessVolumeComponent,Render,"void Render(RasterCommandBuffer, RTHandle)"
+Rendering.PostProcessVolumeComponent,Setup,void Setup()
+Rendering.PostProcessVolumeComponent,injectionPoint,PostProcessInjectionPoint injectionPoint { get; }
+Rendering.RTHandle,ClearCustomHandleProperties,void ClearCustomHandleProperties()
+Rendering.RTHandle,GetScaledSize,Vector2Int GetScaledSize(Vector2Int) / Vector2Int GetScaledSize()
+Rendering.RTHandle,Release,void Release()
+Rendering.RTHandle,SetCustomHandleProperties,void SetCustomHandleProperties(ref RTHandleProperties)
+Rendering.RTHandle,SetRenderTexture,void SetRenderTexture(RenderTexture)
+Rendering.RTHandle,SetTexture,void SetTexture(Texture) / void SetTexture(RenderTargetIdentifier)
+Rendering.RTHandle,externalTexture,Texture externalTexture { get; }
+Rendering.RTHandle,isMSAAEnabled,bool isMSAAEnabled { get; }
+Rendering.RTHandle,name,string name { get; }
+Rendering.RTHandle,nameID,RenderTargetIdentifier nameID { get; }
+Rendering.RTHandle,operators,Implicit(RTHandle) / Implicit(RTHandle) / Implicit(RTHandle)
+Rendering.RTHandle,referenceSize,Vector2Int referenceSize { get; }
+Rendering.RTHandle,rt,RenderTexture rt { get; }
+Rendering.RTHandle,rtHandleProperties,RTHandleProperties rtHandleProperties { get; }
+Rendering.RTHandle,scaleFactor,Vector2 scaleFactor { get; }
+Rendering.RTHandle,useScaling,bool useScaling { get; }
+Rendering.RTHandleProperties,currentRenderTargetSize,Vector2Int currentRenderTargetSize
+Rendering.RTHandleProperties,currentViewportSize,Vector2Int currentViewportSize
+Rendering.RTHandleProperties,previousRenderTargetSize,Vector2Int previousRenderTargetSize
+Rendering.RTHandleProperties,previousViewportSize,Vector2Int previousViewportSize
+Rendering.RTHandleProperties,rtHandleScale,Vector4 rtHandleScale
+Rendering.RTHandleSystem,.ctor,RTHandleSystem()
+Rendering.RTHandleSystem,Alloc,"RTHandle Alloc(int, int, int = 1, DepthBits = None, GraphicsFormat = R8G8B8A8_SRGB, FilterMode = Point, TextureWrapMode = Repeat, TextureDimension = Tex2D, bool = False, bool = False, bool = True, bool = False, int = 1, float = 0, MSAASamples = None, bool = False, bool = False, bool = False, RenderTextureMemoryless = None, VRTextureUsage = None, string = ) / RTHandle Alloc(ref RenderTextureDescriptor, FilterMode = Point, TextureWrapMode = Repeat, bool = False, int = 1, float = 0, string = ) / RTHandle Alloc(Vector2, int = 1, DepthBits = None, GraphicsFormat = R8G8B8A8_SRGB, FilterMode = Point, TextureWrapMode = Repeat, TextureDimension = Tex2D, bool = False, bool = False, bool = True, bool = False, int = 1, float = 0, MSAASamples = None, bool = False, bool = False, bool = False, RenderTextureMemoryless = None, VRTextureUsage = None, string = ) / RTHandle Alloc(Vector2, ref RenderTextureDescriptor, FilterMode = Point, TextureWrapMode = Repeat, bool = False, int = 1, float = 0, string = ) / RTHandle Alloc(ScaleFunc, int = 1, DepthBits = None, GraphicsFormat = R8G8B8A8_SRGB, FilterMode = Point, TextureWrapMode = Repeat, TextureDimension = Tex2D, bool = False, bool = False, bool = True, bool = False, int = 1, float = 0, MSAASamples = None, bool = False, bool = False, bool = False, RenderTextureMemoryless = None, VRTextureUsage = None, string = ) / RTHandle Alloc(ScaleFunc, ref RenderTextureDescriptor, FilterMode = Point, TextureWrapMode = Repeat, bool = False, int = 1, float = 0, string = ) / RTHandle Alloc(Texture) / RTHandle Alloc(RenderTexture, bool = False) / RTHandle Alloc(RenderTargetIdentifier) / RTHandle Alloc(RenderTargetIdentifier, string)"
+Rendering.RTHandleSystem,Dispose,void Dispose()
+Rendering.RTHandleSystem,GetMaxHeight,int GetMaxHeight()
+Rendering.RTHandleSystem,GetMaxWidth,int GetMaxWidth()
+Rendering.RTHandleSystem,Initialize,"void Initialize(int, int)"
+Rendering.RTHandleSystem,Release,void Release(RTHandle)
+Rendering.RTHandleSystem,ResetReferenceSize,"void ResetReferenceSize(int, int)"
+Rendering.RTHandleSystem,SetHardwareDynamicResolutionState,void SetHardwareDynamicResolutionState(bool)
+Rendering.RTHandleSystem,SetReferenceSize,"void SetReferenceSize(int, int) / void SetReferenceSize(int, int, bool)"
+Rendering.RTHandleSystem,hardwareDynamicResRequested,bool hardwareDynamicResRequested { get; }
+Rendering.RTHandleSystem,rtHandleProperties,RTHandleProperties rtHandleProperties { get; }
+Rendering.RTHandles,Alloc,"static RTHandle Alloc(int, int, int = 1, DepthBits = None, GraphicsFormat = R8G8B8A8_SRGB, FilterMode = Point, TextureWrapMode = Repeat, TextureDimension = Tex2D, bool = False, bool = False, bool = True, bool = False, int = 1, float = 0, MSAASamples = None, bool = False, bool = False, bool = False, RenderTextureMemoryless = None, VRTextureUsage = None, string = ) / static RTHandle Alloc(ref RenderTextureDescriptor, FilterMode = Point, TextureWrapMode = Repeat, bool = False, int = 1, float = 0, string = ) / static RTHandle Alloc(Vector2, int = 1, DepthBits = None, GraphicsFormat = R8G8B8A8_SRGB, FilterMode = Point, TextureWrapMode = Repeat, TextureDimension = Tex2D, bool = False, bool = False, bool = True, bool = False, int = 1, float = 0, MSAASamples = None, bool = False, bool = False, bool = False, RenderTextureMemoryless = None, VRTextureUsage = None, string = ) / static RTHandle Alloc(Vector2, ref RenderTextureDescriptor, FilterMode = Point, TextureWrapMode = Repeat, bool = False, int = 1, float = 0, string = ) / static RTHandle Alloc(ScaleFunc, int = 1, DepthBits = None, GraphicsFormat = R8G8B8A8_SRGB, FilterMode = Point, TextureWrapMode = Repeat, TextureDimension = Tex2D, bool = False, bool = False, bool = True, bool = False, int = 1, float = 0, MSAASamples = None, bool = False, bool = False, bool = False, RenderTextureMemoryless = None, VRTextureUsage = None, string = ) / static RTHandle Alloc(ScaleFunc, ref RenderTextureDescriptor, FilterMode = Point, TextureWrapMode = Repeat, bool = False, int = 1, float = 0, string = ) / static RTHandle Alloc(Texture) / static RTHandle Alloc(RenderTexture, bool = False) / static RTHandle Alloc(RenderTargetIdentifier) / static RTHandle Alloc(RenderTargetIdentifier, string)"
+Rendering.RTHandles,CalculateDimensions,static Vector2Int CalculateDimensions(Vector2) / static Vector2Int CalculateDimensions(ScaleFunc)
+Rendering.RTHandles,Initialize,"static void Initialize(int, int)"
+Rendering.RTHandles,Release,static void Release(RTHandle)
+Rendering.RTHandles,ResetReferenceSize,"static void ResetReferenceSize(int, int)"
+Rendering.RTHandles,SetHardwareDynamicResolutionState,static void SetHardwareDynamicResolutionState(bool)
+Rendering.RTHandles,SetReferenceSize,"static void SetReferenceSize(int, int)"
+Rendering.RTHandles,maxHeight,static int maxHeight { get; }
+Rendering.RTHandles,maxWidth,static int maxWidth { get; }
+Rendering.RTHandles,rtHandleProperties,static RTHandleProperties rtHandleProperties { get; }
+Rendering.RasterCommandBuffer,ClearRenderTarget,"void ClearRenderTarget(bool, bool, Color, float = 1) / void ClearRenderTarget(RTClearFlags, Color, float = 1, uint = 0)"
+Rendering.RasterCommandBuffer,DisableScissorRect,void DisableScissorRect()
+Rendering.RasterCommandBuffer,DrawMesh,"void DrawMesh(Mesh, Matrix4x4, Material, int = 0, int = -1, MaterialPropertyBlock = null)"
+Rendering.RasterCommandBuffer,DrawMeshInstanced,"void DrawMeshInstanced(Mesh, int, Material, int, Matrix4x4[], int, MaterialPropertyBlock = null)"
+Rendering.RasterCommandBuffer,DrawProcedural,"void DrawProcedural(Matrix4x4, Material, int, MeshTopology, int, int = 1, MaterialPropertyBlock = null)"
+Rendering.RasterCommandBuffer,DrawRenderer,"void DrawRenderer(Renderer, Material, int = 0, int = -1)"
+Rendering.RasterCommandBuffer,DrawRendererList,void DrawRendererList(RendererList)
+Rendering.RasterCommandBuffer,EnableScissorRect,void EnableScissorRect(Rect)
+Rendering.RasterCommandBuffer,SetInvertCulling,void SetInvertCulling(bool)
+Rendering.RasterCommandBuffer,SetViewProjectionMatrices,"void SetViewProjectionMatrices(Matrix4x4, Matrix4x4)"
+Rendering.RasterCommandBuffer,SetViewport,void SetViewport(Rect)
+Rendering.RenderGraphModule.AccessFlags,Discard,Rendering.RenderGraphModule.AccessFlags.Discard = 4
+Rendering.RenderGraphModule.AccessFlags,None,Rendering.RenderGraphModule.AccessFlags.None = 0
+Rendering.RenderGraphModule.AccessFlags,Read,Rendering.RenderGraphModule.AccessFlags.Read = 1
+Rendering.RenderGraphModule.AccessFlags,ReadWrite,Rendering.RenderGraphModule.AccessFlags.ReadWrite = 3
+Rendering.RenderGraphModule.AccessFlags,Write,Rendering.RenderGraphModule.AccessFlags.Write = 2
+Rendering.RenderGraphModule.AccessFlags,WriteAll,Rendering.RenderGraphModule.AccessFlags.WriteAll = 6
+Rendering.RenderGraphModule.BaseRenderFunc,delegate,"void (PassData, ContextType)"
+Rendering.RenderGraphModule.ComputeGraphContext,cmd,ComputeCommandBuffer cmd
+Rendering.RenderGraphModule.ComputeGraphContext,defaultResources,RenderGraphDefaultResources defaultResources
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,AllowGlobalStateModification,void AllowGlobalStateModification(bool)
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,AllowPassCulling,void AllowPassCulling(bool)
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,CreateTransientTexture,TextureHandle CreateTransientTexture(ref TextureDesc) / TextureHandle CreateTransientTexture(ref TextureHandle)
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,SetGlobalTextureAfterPass,"void SetGlobalTextureAfterPass(ref TextureHandle, int)"
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,UseAllGlobalTextures,void UseAllGlobalTextures(bool)
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,UseGlobalTexture,"void UseGlobalTexture(int, AccessFlags = Read)"
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,UseRendererList,void UseRendererList(ref RendererListHandle)
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,UseTexture,"void UseTexture(ref TextureHandle, AccessFlags = Read)"
+Rendering.RenderGraphModule.IComputeRenderGraphBuilder,EnableAsyncCompute,void EnableAsyncCompute(bool)
+Rendering.RenderGraphModule.IComputeRenderGraphBuilder,SetRenderFunc,"void SetRenderFunc<PassData>(BaseRenderFunc<PassData, ComputeGraphContext>)"
+Rendering.RenderGraphModule.IRasterRenderGraphBuilder,SetInputAttachment,"void SetInputAttachment(TextureHandle, int, AccessFlags = Read)"
+Rendering.RenderGraphModule.IRasterRenderGraphBuilder,SetRenderAttachment,"void SetRenderAttachment(TextureHandle, int, AccessFlags = Write) / void SetRenderAttachment(TextureHandle, int, AccessFlags, int, int)"
+Rendering.RenderGraphModule.IRasterRenderGraphBuilder,SetRenderAttachmentDepth,"void SetRenderAttachmentDepth(TextureHandle, AccessFlags = Write) / void SetRenderAttachmentDepth(TextureHandle, AccessFlags, int, int)"
+Rendering.RenderGraphModule.IRasterRenderGraphBuilder,SetRenderFunc,"void SetRenderFunc<PassData>(BaseRenderFunc<PassData, RasterGraphContext>)"
+Rendering.RenderGraphModule.IUnsafeRenderGraphBuilder,SetRenderFunc,"void SetRenderFunc<PassData>(BaseRenderFunc<PassData, UnsafeGraphContext>)"
+Rendering.RenderGraphModule.ImportResourceParams,clearColor,Color clearColor
+Rendering.RenderGraphModule.ImportResourceParams,clearOnFirstUse,bool clearOnFirstUse
+Rendering.RenderGraphModule.ImportResourceParams,discardOnLastUse,bool discardOnLastUse
+Rendering.RenderGraphModule.RasterGraphContext,cmd,RasterCommandBuffer cmd
+Rendering.RenderGraphModule.RasterGraphContext,defaultResources,RenderGraphDefaultResources defaultResources
+Rendering.RenderGraphModule.RenderGraph,.ctor,RenderGraph(string = RenderGraph)
+Rendering.RenderGraphModule.RenderGraph,AddComputePass,"IComputeRenderGraphBuilder AddComputePass<PassData>(string, out PassData)"
+Rendering.RenderGraphModule.RenderGraph,AddRasterRenderPass,"IRasterRenderGraphBuilder AddRasterRenderPass<PassData>(string, out PassData)"
+Rendering.RenderGraphModule.RenderGraph,AddUnsafePass,"IUnsafeRenderGraphBuilder AddUnsafePass<PassData>(string, out PassData)"
+Rendering.RenderGraphModule.RenderGraph,BeginRecording,void BeginRecording(ref RenderGraphParameters)
+Rendering.RenderGraphModule.RenderGraph,Cleanup,void Cleanup()
+Rendering.RenderGraphModule.RenderGraph,CreateRendererList,RendererListHandle CreateRendererList(ref RendererListDesc) / RendererListHandle CreateRendererList(ref RendererListParams)
+Rendering.RenderGraphModule.RenderGraph,CreateTexture,TextureHandle CreateTexture(ref TextureDesc) / TextureHandle CreateTexture(TextureHandle)
+Rendering.RenderGraphModule.RenderGraph,EndFrame,void EndFrame()
+Rendering.RenderGraphModule.RenderGraph,EndRecordingAndExecute,void EndRecordingAndExecute()
+Rendering.RenderGraphModule.RenderGraph,GetTextureDesc,TextureDesc GetTextureDesc(TextureHandle)
+Rendering.RenderGraphModule.RenderGraph,ImportBackbuffer,"TextureHandle ImportBackbuffer(RenderTargetIdentifier) / TextureHandle ImportBackbuffer(RenderTargetIdentifier, RenderTargetInfo, ImportResourceParams = null)"
+Rendering.RenderGraphModule.RenderGraph,ImportTexture,"TextureHandle ImportTexture(RTHandle) / TextureHandle ImportTexture(RTHandle, ImportResourceParams)"
+Rendering.RenderGraphModule.RenderGraph,defaultResources,RenderGraphDefaultResources defaultResources { get; }
+Rendering.RenderGraphModule.RenderGraph,isRenderGraphViewerActive,static bool isRenderGraphViewerActive { get; }
+Rendering.RenderGraphModule.RenderGraph,kMaxMRTCount,static int kMaxMRTCount
+Rendering.RenderGraphModule.RenderGraph,name,string name { get; }
+Rendering.RenderGraphModule.RenderGraph,nativeRenderPassesEnabled,bool nativeRenderPassesEnabled { get; set; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,.ctor,RenderGraphDefaultResources()
+Rendering.RenderGraphModule.RenderGraphDefaultResources,blackTexture,TextureHandle blackTexture { get; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,blackTexture3DXR,TextureHandle blackTexture3DXR { get; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,blackTextureArrayXR,TextureHandle blackTextureArrayXR { get; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,blackTextureXR,TextureHandle blackTextureXR { get; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,blackUIntTextureXR,TextureHandle blackUIntTextureXR { get; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,clearTextureXR,TextureHandle clearTextureXR { get; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,defaultShadowTexture,TextureHandle defaultShadowTexture { get; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,magentaTextureXR,TextureHandle magentaTextureXR { get; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,whiteTexture,TextureHandle whiteTexture { get; }
+Rendering.RenderGraphModule.RenderGraphDefaultResources,whiteTextureXR,TextureHandle whiteTextureXR { get; }
+Rendering.RenderGraphModule.RenderGraphParameters,commandBuffer,CommandBuffer commandBuffer
+Rendering.RenderGraphModule.RenderGraphParameters,currentFrameIndex,int currentFrameIndex
+Rendering.RenderGraphModule.RenderGraphParameters,executionName,string executionName
+Rendering.RenderGraphModule.RenderGraphParameters,generateDebugData,bool generateDebugData
+Rendering.RenderGraphModule.RenderGraphParameters,invalidContextForTesting,bool invalidContextForTesting
+Rendering.RenderGraphModule.RenderGraphParameters,rendererListCulling,bool rendererListCulling
+Rendering.RenderGraphModule.RenderGraphParameters,scriptableRenderContext,ScriptableRenderContext scriptableRenderContext
+Rendering.RenderGraphModule.RenderTargetInfo,bindMS,bool bindMS
+Rendering.RenderGraphModule.RenderTargetInfo,format,GraphicsFormat format
+Rendering.RenderGraphModule.RenderTargetInfo,height,int height
+Rendering.RenderGraphModule.RenderTargetInfo,msaaSamples,int msaaSamples
+Rendering.RenderGraphModule.RenderTargetInfo,volumeDepth,int volumeDepth
+Rendering.RenderGraphModule.RenderTargetInfo,width,int width
+Rendering.RenderGraphModule.RendererListHandle,IsValid,bool IsValid()
+Rendering.RenderGraphModule.RendererListHandle,operators,"Implicit(RendererListHandle) / Equality(RendererListHandle, RendererListHandle) / Inequality(RendererListHandle, RendererListHandle)"
+Rendering.RenderGraphModule.TextureDesc,.ctor,"TextureDesc(int, int, bool = False, bool = False) / TextureDesc(Vector2, bool = False, bool = False) / TextureDesc(ScaleFunc, bool = False, bool = False) / TextureDesc(TextureDesc) / TextureDesc(RenderTextureDescriptor) / TextureDesc(RTHandle)"
+Rendering.RenderGraphModule.TextureDesc,anisoLevel,int anisoLevel
+Rendering.RenderGraphModule.TextureDesc,autoGenerateMips,bool autoGenerateMips
+Rendering.RenderGraphModule.TextureDesc,bindTextureMS,bool bindTextureMS
+Rendering.RenderGraphModule.TextureDesc,clearBuffer,bool clearBuffer
+Rendering.RenderGraphModule.TextureDesc,clearColor,Color clearColor
+Rendering.RenderGraphModule.TextureDesc,colorFormat,GraphicsFormat colorFormat
+Rendering.RenderGraphModule.TextureDesc,depthBufferBits,DepthBits depthBufferBits
+Rendering.RenderGraphModule.TextureDesc,dimension,TextureDimension dimension
+Rendering.RenderGraphModule.TextureDesc,discardBuffer,bool discardBuffer
+Rendering.RenderGraphModule.TextureDesc,enableRandomWrite,bool enableRandomWrite
+Rendering.RenderGraphModule.TextureDesc,filterMode,FilterMode filterMode
+Rendering.RenderGraphModule.TextureDesc,func,ScaleFunc func
+Rendering.RenderGraphModule.TextureDesc,height,int height
+Rendering.RenderGraphModule.TextureDesc,isShadowMap,bool isShadowMap
+Rendering.RenderGraphModule.TextureDesc,memoryless,RenderTextureMemoryless memoryless
+Rendering.RenderGraphModule.TextureDesc,mipMapBias,float mipMapBias
+Rendering.RenderGraphModule.TextureDesc,msaaSamples,MSAASamples msaaSamples
+Rendering.RenderGraphModule.TextureDesc,name,string name
+Rendering.RenderGraphModule.TextureDesc,scale,Vector2 scale
+Rendering.RenderGraphModule.TextureDesc,sizeMode,TextureSizeMode sizeMode
+Rendering.RenderGraphModule.TextureDesc,slices,int slices
+Rendering.RenderGraphModule.TextureDesc,useDynamicScale,bool useDynamicScale
+Rendering.RenderGraphModule.TextureDesc,useMipMap,bool useMipMap
+Rendering.RenderGraphModule.TextureDesc,vrUsage,VRTextureUsage vrUsage
+Rendering.RenderGraphModule.TextureDesc,width,int width
+Rendering.RenderGraphModule.TextureDesc,wrapMode,TextureWrapMode wrapMode
+Rendering.RenderGraphModule.TextureHandle,IsValid,bool IsValid()
+Rendering.RenderGraphModule.TextureHandle,nullHandle,static TextureHandle nullHandle { get; }
+Rendering.RenderGraphModule.TextureHandle,operators,"Implicit(TextureHandle) / Implicit(TextureHandle) / Implicit(TextureHandle) / Equality(TextureHandle, TextureHandle) / Inequality(TextureHandle, TextureHandle)"
+Rendering.RenderGraphModule.TextureSizeMode,Explicit,Rendering.RenderGraphModule.TextureSizeMode.Explicit = 0
+Rendering.RenderGraphModule.TextureSizeMode,Functor,Rendering.RenderGraphModule.TextureSizeMode.Functor = 2
+Rendering.RenderGraphModule.TextureSizeMode,Scale,Rendering.RenderGraphModule.TextureSizeMode.Scale = 1
+Rendering.RenderGraphModule.UnsafeGraphContext,cmd,UnsafeCommandBuffer cmd
+Rendering.RenderGraphModule.UnsafeGraphContext,defaultResources,RenderGraphDefaultResources defaultResources
+Rendering.RenderTextureParameter,.ctor,"RenderTextureParameter(RenderTexture, bool = False)"
+Rendering.ScaleFunc,delegate,Vector2Int (Vector2Int)
+Rendering.Texture2DParameter,.ctor,"Texture2DParameter(Texture, bool = False)"
+Rendering.TextureParameter,.ctor,"TextureParameter(Texture, bool = False) / TextureParameter(Texture, TextureDimension, bool = False)"
+Rendering.TextureParameter,dimension,TextureDimension dimension
+Rendering.UnsafeCommandBuffer,Blit,"void Blit(RenderTargetIdentifier, RenderTargetIdentifier) / void Blit(RenderTargetIdentifier, RenderTargetIdentifier, Material) / void Blit(RenderTargetIdentifier, RenderTargetIdentifier, Material, int) / void Blit(Texture, RenderTargetIdentifier)"
+Rendering.UnsafeCommandBuffer,CopyTexture,"void CopyTexture(RenderTargetIdentifier, RenderTargetIdentifier) / void CopyTexture(RenderTargetIdentifier, int, int, RenderTargetIdentifier, int, int)"
+Rendering.UnsafeCommandBuffer,GenerateMips,void GenerateMips(RenderTargetIdentifier)
+Rendering.UnsafeCommandBuffer,ResolveAntiAliasedSurface,"void ResolveAntiAliasedSurface(RenderTexture, RenderTexture = null)"
+Rendering.UnsafeCommandBuffer,SetRenderTarget,"void SetRenderTarget(RenderTargetIdentifier) / void SetRenderTarget(RenderTargetIdentifier, RenderBufferLoadAction, RenderBufferStoreAction) / void SetRenderTarget(RenderTargetIdentifier, int, CubemapFace, int) / void SetRenderTarget(RenderTargetIdentifier, RenderTargetIdentifier) / void SetRenderTarget(RenderTargetIdentifier[], RenderTargetIdentifier)"
+Rendering.Vector2Parameter,.ctor,"Vector2Parameter(Vector2, bool = False)"
+Rendering.Vector2Parameter,Interp,"void Interp(Vector2, Vector2, float)"
+Rendering.Vector3Parameter,.ctor,"Vector3Parameter(Vector3, bool = False)"
+Rendering.Vector3Parameter,Interp,"void Interp(Vector3, Vector3, float)"
+Rendering.Vector4Parameter,.ctor,"Vector4Parameter(Vector4, bool = False)"
+Rendering.Vector4Parameter,Interp,"void Interp(Vector4, Vector4, float)"
+Rendering.Volume,.ctor,Volume()
+Rendering.Volume,HasInstantiatedProfile,bool HasInstantiatedProfile()
+Rendering.Volume,blendDistance,float blendDistance
+Rendering.Volume,isGlobal,bool isGlobal { get; set; }
+Rendering.Volume,priority,float priority { get; set; }
+Rendering.Volume,profile,VolumeProfile profile { get; set; }
+Rendering.Volume,sharedProfile,VolumeProfile sharedProfile
+Rendering.Volume,weight,float weight
+Rendering.VolumeComponent,.ctor,VolumeComponent()
+Rendering.VolumeComponent,AnyPropertiesIsOverridden,bool AnyPropertiesIsOverridden()
+Rendering.VolumeComponent,Override,"void Override(VolumeComponent, float)"
+Rendering.VolumeComponent,Release,void Release()
+Rendering.VolumeComponent,SetAllOverridesTo,void SetAllOverridesTo(bool)
+Rendering.VolumeComponent,active,bool active
+Rendering.VolumeComponent,displayName,string displayName { get; }
+Rendering.VolumeComponent,parameters,ReadOnlyCollection<VolumeParameter> parameters { get; }
+Rendering.VolumeManager,CreateStack,VolumeStack CreateStack()
+Rendering.VolumeManager,Deinitialize,void Deinitialize()
+Rendering.VolumeManager,DestroyStack,void DestroyStack(VolumeStack)
+Rendering.VolumeManager,GetVolumes,Volume[] GetVolumes(LayerMask)
+Rendering.VolumeManager,Initialize,"void Initialize(VolumeProfile = null, VolumeProfile = null)"
+Rendering.VolumeManager,IsComponentActiveInMask,bool IsComponentActiveInMask<T>(LayerMask)
+Rendering.VolumeManager,Register,void Register(Volume)
+Rendering.VolumeManager,ResetMainStack,void ResetMainStack()
+Rendering.VolumeManager,Unregister,void Unregister(Volume)
+Rendering.VolumeManager,Update,"void Update(Transform, LayerMask) / void Update(VolumeStack, Transform, LayerMask)"
+Rendering.VolumeManager,baseComponentTypeArray,Type[] baseComponentTypeArray { get; }
+Rendering.VolumeManager,globalDefaultProfile,VolumeProfile globalDefaultProfile { get; }
+Rendering.VolumeManager,instance,static VolumeManager instance { get; }
+Rendering.VolumeManager,isInitialized,bool isInitialized { get; }
+Rendering.VolumeManager,qualityDefaultProfile,VolumeProfile qualityDefaultProfile { get; }
+Rendering.VolumeManager,stack,VolumeStack stack { get; set; }
+Rendering.VolumeParameter,.ctor,VolumeParameter()
+Rendering.VolumeParameter,Clone,object Clone() / object Clone()
+Rendering.VolumeParameter,GetValue,T GetValue<T>()
+Rendering.VolumeParameter,Interp,"void Interp(T, T, float)"
+Rendering.VolumeParameter,IsObjectParameter,static bool IsObjectParameter(Type)
+Rendering.VolumeParameter,Override,void Override(T)
+Rendering.VolumeParameter,Release,void Release()
+Rendering.VolumeParameter,SetValue,void SetValue(VolumeParameter) / void SetValue(VolumeParameter)
+Rendering.VolumeParameter,ToString,string ToString()
+Rendering.VolumeParameter,operators,"Equality(VolumeParameter, T) / Inequality(VolumeParameter, T) / Explicit(VolumeParameter)"
+Rendering.VolumeParameter,overrideState,bool overrideState { get; set; }
+Rendering.VolumeParameter,value,T value { get; set; }
+Rendering.VolumeProfile,.ctor,VolumeProfile()
+Rendering.VolumeProfile,Add,"T Add<T>(bool = False) / VolumeComponent Add(Type, bool = False)"
+Rendering.VolumeProfile,Has,bool Has<T>() / bool Has(Type)
+Rendering.VolumeProfile,HasSubclassOf,bool HasSubclassOf(Type)
+Rendering.VolumeProfile,Remove,void Remove<T>() / void Remove(Type)
+Rendering.VolumeProfile,Reset,void Reset()
+Rendering.VolumeProfile,TryGet,"bool TryGet<T>(out T) / bool TryGet<T>(Type, out T)"
+Rendering.VolumeProfile,TryGetAllSubclassOf,"bool TryGetAllSubclassOf<T>(Type, List<T>)"
+Rendering.VolumeProfile,TryGetSubclassOf,"bool TryGetSubclassOf<T>(Type, out T)"
+Rendering.VolumeProfile,components,List<VolumeComponent> components
+Rendering.VolumeProfile,isDirty,bool isDirty
+Rendering.VolumeStack,Dispose,void Dispose()
+Rendering.VolumeStack,GetComponent,T GetComponent<T>() / VolumeComponent GetComponent(Type)
+Rendering.VolumeStack,isValid,bool isValid { get; }
