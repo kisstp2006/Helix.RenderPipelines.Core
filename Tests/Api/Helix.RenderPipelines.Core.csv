@@ -276,6 +276,8 @@ Rendering.PostProcessPasses,Record,"TextureHandle Record(RenderGraph, VolumeStac
 Rendering.PostProcessPasses,order,List<Type> order { get; }
 Rendering.PostProcessVolumeComponent,Cleanup,void Cleanup()
 Rendering.PostProcessVolumeComponent,IsActive,bool IsActive()
+Rendering.PostProcessVolumeComponent,Override,"void Override(VolumeComponent, float)"
+Rendering.PostProcessVolumeComponent,Release,void Release()
 Rendering.PostProcessVolumeComponent,Render,"void Render(RasterCommandBuffer, RTHandle)"
 Rendering.PostProcessVolumeComponent,Setup,void Setup()
 Rendering.PostProcessVolumeComponent,injectionPoint,PostProcessInjectionPoint injectionPoint { get; }
@@ -459,18 +461,18 @@ Rendering.Vector4Parameter,.ctor,"Vector4Parameter(Vector4, bool = False)"
 Rendering.Vector4Parameter,Interp,"void Interp(Vector4, Vector4, float)"
 Rendering.Volume,.ctor,Volume()
 Rendering.Volume,HasInstantiatedProfile,bool HasInstantiatedProfile()
-Rendering.Volume,blendDistance,float blendDistance
+Rendering.Volume,blendDistance,float blendDistance { get; set; }
 Rendering.Volume,isGlobal,bool isGlobal { get; set; }
 Rendering.Volume,priority,float priority { get; set; }
 Rendering.Volume,profile,VolumeProfile profile { get; set; }
-Rendering.Volume,sharedProfile,VolumeProfile sharedProfile
-Rendering.Volume,weight,float weight
+Rendering.Volume,sharedProfile,VolumeProfile sharedProfile { get; set; }
+Rendering.Volume,weight,float weight { get; set; }
 Rendering.VolumeComponent,.ctor,VolumeComponent()
 Rendering.VolumeComponent,AnyPropertiesIsOverridden,bool AnyPropertiesIsOverridden()
 Rendering.VolumeComponent,Override,"void Override(VolumeComponent, float)"
 Rendering.VolumeComponent,Release,void Release()
 Rendering.VolumeComponent,SetAllOverridesTo,void SetAllOverridesTo(bool)
-Rendering.VolumeComponent,active,bool active
+Rendering.VolumeComponent,active,bool active { get; set; }
 Rendering.VolumeComponent,displayName,string displayName { get; }
 Rendering.VolumeComponent,parameters,ReadOnlyCollection<VolumeParameter> parameters { get; }
 Rendering.VolumeManager,CreateStack,VolumeStack CreateStack()
@@ -510,8 +512,8 @@ Rendering.VolumeProfile,Reset,void Reset()
 Rendering.VolumeProfile,TryGet,"bool TryGet<T>(out T) / bool TryGet<T>(Type, out T)"
 Rendering.VolumeProfile,TryGetAllSubclassOf,"bool TryGetAllSubclassOf<T>(Type, List<T>)"
 Rendering.VolumeProfile,TryGetSubclassOf,"bool TryGetSubclassOf<T>(Type, out T)"
-Rendering.VolumeProfile,components,List<VolumeComponent> components
-Rendering.VolumeProfile,isDirty,bool isDirty
+Rendering.VolumeProfile,components,List<VolumeComponent> components { get; }
+Rendering.VolumeProfile,isDirty,bool isDirty { get; set; }
 Rendering.VolumeStack,Dispose,void Dispose()
 Rendering.VolumeStack,GetComponent,T GetComponent<T>() / VolumeComponent GetComponent(Type)
 Rendering.VolumeStack,isValid,bool isValid { get; }

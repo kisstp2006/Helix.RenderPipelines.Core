@@ -25,6 +25,11 @@
 #include <cstdio>
 #include <cstdlib>
 
+// The publish function of the core's module (in its library on the desktop, linked in on the Web).
+extern "C" void HxBindings_HelixRenderPipelinesCore_Publish();
+// The test program's own game module (its C++ volume components).
+HX_BINDINGS_EXPORT void HxBindings_RenderPipelinesCoreTests_Publish();
+
 // The engine's C# side with the C# tests of the core (and the core's runtime they reference), started once per process;
 // the notes the tests write; the shaders the tests draw with as assets.
 namespace helix::rpcore::testing
@@ -46,6 +51,19 @@ namespace helix::rpcore::testing
         using namespace scripting;
         RegisterNativeExport("CoreTests.Note", std::bit_cast<const void*>(&NoteFromCSharp));
         String error;
+        // The core's native module (linked into the test program), before the C# that binds to it.
+        HxBindings_HelixRenderPipelinesCore_Publish();
+        if (!engine::RegisterLinkedGameModule("HelixRenderPipelinesCore", error))
+        {
+            std::printf("    %.*s\n", int(error.Size()), error.Data());
+            return false;
+        }
+        HxBindings_RenderPipelinesCoreTests_Publish();
+        if (!engine::RegisterLinkedGameModule("RenderPipelinesCoreTests", error))
+        {
+            std::printf("    %.*s\n", int(error.Size()), error.Data());
+            return false;
+        }
         DotnetHostDesc desc;
         desc.runtimeAssembly = HX_TEST_RUNTIME_ASSEMBLY;
         if (!DotnetHost::Start(desc, error))
@@ -64,9 +82,10 @@ namespace helix::rpcore::testing
         }
         // The core's runtime (its volume components and profiles are script classes), then the tests.
         StringView runtime = HX_TEST_CORE_RUNTIME;
-        if (load(runtime.Data(), i32(runtime.Size())) <= 0)
+        // Its classes are the native core's (generated), so it registers none of its own.
+        if (load(runtime.Data(), i32(runtime.Size())) < 0)
         {
-            std::printf("    the core's runtime registered no script classes\n");
+            std::printf("    the core's runtime did not load\n");
             return false;
         }
         StringView scripts = HX_TEST_SCRIPTS;

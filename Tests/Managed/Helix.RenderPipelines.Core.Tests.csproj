@@ -29,4 +29,7 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup Condition="'$(HelixModuleBindings)' != ''">
+    <Compile Include="$(HelixModuleBindings)" />
+  </ItemGroup>
 </Project>

@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using System.Linq;
 using HelixEngine;
 using HelixEngine.Rendering;
 
@@ -83,6 +85,26 @@ namespace Tests
             manager.UnregisterData(data);
             manager.RemovePanel("Rendering");
             Notes.Note($"removed:{manager.GetPanel("Rendering") == null}:{manager.panels.Count}");
+        }
+    }
+
+    // A panel of C++ widgets (the C++ test makes it): wrappers of their kinds, sets the C++ side validates, a C# widget
+    // put into it.
+    public class CsDebugReader : GameBehaviour
+    {
+        void Start()
+        {
+            DebugUI.Panel panel = DebugManager.instance.GetPanel("Native");
+            string names = string.Join(",", panel.children.Select(w => w.GetType().Name + "=" + w.displayName));
+            var count = (DebugUI.IntField)DebugManager.instance.GetItem("Native -> Count");
+            count.SetValue(9);
+            var group = (DebugUI.Foldout)panel.children[2];
+            var on = (DebugUI.BoolField)group.children[0];
+            on.SetValue(true);
+            ((DebugUI.Button)DebugManager.instance.GetItem("Native -> Go")).action();
+            panel.children.Add(new DebugUI.Value { displayName = "From C#", getter = () => 7 });
+            float speed = ((DebugUI.FloatField)panel.children[1]).GetValue();
+            Notes.Note($"wrap:{names}:{count.GetValue()}:{on.GetValue()}:{count.queryPath}:{count.parent == panel}:{speed.ToString(CultureInfo.InvariantCulture)}");
         }
     }
 }
