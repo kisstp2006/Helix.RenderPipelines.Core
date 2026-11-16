@@ -136,6 +136,36 @@ namespace helix::rendering
         return g ? g->execution() : 0;
     }
 
+    String GraphNative::Name(u64 graph)
+    {
+        RenderGraph* g = RenderGraph::Find(graph);
+        return g ? String(g->name()) : String();
+    }
+
+    bool GraphNative::Recording(u64 graph)
+    {
+        RenderGraph* g = RenderGraph::Find(graph);
+        return g && g->recording();
+    }
+
+    u64 GraphNative::CommandBufferOf(u64 graph)
+    {
+        RenderGraph* g = RenderGraph::Find(graph);
+        return g && g->parameters().commandBuffer ? g->parameters().commandBuffer->Id() : 0;
+    }
+
+    u64 GraphNative::ContextOf(u64 graph)
+    {
+        RenderGraph* g = RenderGraph::Find(graph);
+        return g && g->parameters().scriptableRenderContext ? g->parameters().scriptableRenderContext->Id() : 0;
+    }
+
+    u64 GraphNative::ExecutingGraph()
+    {
+        RenderGraph* g = RenderGraph::Executing();
+        return g ? g->Id() : 0;
+    }
+
     u64 GraphNative::DefaultTexture(u64 graph, i32 which)
     {
         RenderGraph* g = RenderGraph::Find(graph);

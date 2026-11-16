@@ -315,6 +315,8 @@ namespace helix::rendering
         bool BeginRecording(const RenderGraphParameters& parameters);
         bool EndRecordingAndExecute();
         bool recording() const { return recording_; }
+        // The parameters of the frame being recorded or executed.
+        const RenderGraphParameters& parameters() const;
         u32 execution() const { return execution_; }
 
         TextureHandle ImportTexture(RTHandle* handle, const ImportResourceParams& params = {});
@@ -324,6 +326,10 @@ namespace helix::rendering
         const TextureDesc& GetTextureDesc(TextureHandle texture) const;
         RendererListHandle CreateRendererList(const engine::RendererUtils::RendererListDesc& desc);
         RendererListHandle CreateRendererList(const engine::RendererListParams& desc);
+        // The skybox of RenderSettings around the camera (an empty list without one).
+        RendererListHandle CreateSkyboxRendererList(engine::Camera* camera);
+        // The shadow casters of a visible light's split (an empty list before CullShadowCasters).
+        RendererListHandle CreateShadowRendererList(const engine::ShadowDrawingSettings& settings);
         // A list the context already made (C#'s).
         RendererListHandle ImportRendererList(engine::RendererUtils::RendererList list);
 

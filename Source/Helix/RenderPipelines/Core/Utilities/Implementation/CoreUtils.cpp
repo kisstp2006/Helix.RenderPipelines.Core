@@ -190,4 +190,20 @@ namespace helix::rendering
         String dim = dimension == engine::TextureDimension::None ? String() : EnumName(dimension);
         return Format("Texture_{}{}{}", prefix, dim, size);
     }
+
+    engine::Cubemap* CoreUtils::magentaCubeTexture()
+    {
+        static engine::EntityId id;
+        if (auto* c = engine::EntityIdToObject<engine::Cubemap>(id))
+            return c;
+        engine::Cubemap* c = engine::Cubemap::Create(1, engine::TextureFormat::RGBA32, false, false, false);
+        c->SetName("MagentaCube");
+        c->SetPersistent(true);
+        c->hideFlags = engine::HideFlags::HideAndDontSave;
+        for (i32 f = 0; f < 6; f++)
+            c->SetPixel(engine::CubemapFace(f), 0, 0, Color(1, 0, 1, 1));
+        c->Apply(false);
+        id = c->GetEntityId();
+        return c;
+    }
 }

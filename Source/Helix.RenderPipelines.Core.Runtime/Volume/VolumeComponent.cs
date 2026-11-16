@@ -63,10 +63,31 @@ namespace HelixEngine.Rendering
             return fields;
         }
 
-        // The C++ members' wrappers, then the C# fields (handed to the native component of a C# component).
+        static readonly Dictionary<Type, PropertyInfo[]> s_Members = new Dictionary<Type, PropertyInfo[]>();
+
+        // The generated properties of a C++ component's parameter members (their declared C# classes).
+        static PropertyInfo[] MembersOf(Type type)
+        {
+            if (s_Members.TryGetValue(type, out PropertyInfo[] members))
+                return members;
+            var list = new List<PropertyInfo>();
+            for (Type t = type; t != null && t != typeof(VolumeComponent); t = t.BaseType)
+                if (global::Helix.Interop.Types.IsGenerated(t))
+                    list.AddRange(t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                                      .Where(m => m.CanRead && m.GetIndexParameters().Length == 0 && typeof(VolumeParameter).IsAssignableFrom(m.PropertyType)));
+            members = list.ToArray();
+            s_Members[type] = members;
+            return members;
+        }
+
+        // The C++ members' wrappers, then the C# fields (handed to the native component of a C# component). The members
+        // are read through their properties first, so each wrapper is of its member's declared class (an enum's
+        // parameter class, not the int kind's).
         void FindParameters()
         {
             var list = new List<VolumeParameter>();
+            foreach (PropertyInfo member in MembersOf(GetType()))
+                member.GetValue(this);
             int native = VolumesNative.NativeParameterCount(this);
             for (int i = 0; i < native; i++)
                 list.Add(VolumeParameter.Native(VolumesNative.ParameterId(this, i)));

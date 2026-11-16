@@ -158,4 +158,28 @@ namespace Tests
             return mesh;
         }
     }
+
+    // C# passes on a graph made and executed in C++ (the C++ test's): a clear into the graph's color texture.
+    public class CsGraphRecorder : CoreTests.CppGraphRecorder
+    {
+        class ClearData
+        {
+            public Color color;
+        }
+
+        public override void Prepare(VolumeProfile profile) => profile.Add<CsTintPost>().tint.Override(new Color(1, 0.5f, 1, 1));
+
+        public override void Record(ulong graph, ulong color)
+        {
+            RenderGraph g = Helix.Interop.RenderGraphInterop.GraphOf(graph);
+            TextureHandle target = Helix.Interop.RenderGraphInterop.TextureOf(color);
+            using (IRasterRenderGraphBuilder builder = g.AddRasterRenderPass("CsClear", out ClearData data))
+            {
+                data.color = Color.green;
+                builder.SetRenderAttachment(target, 0, AccessFlags.WriteAll);
+                builder.SetRenderFunc((ClearData d, RasterGraphContext ctx) => ctx.cmd.ClearRenderTarget(false, true, d.color));
+            }
+            Notes.Note($"borrowed:{g.name}:{g.nativeRenderPassesEnabled}:{ReferenceEquals(g, Helix.Interop.RenderGraphInterop.GraphOf(graph))}");
+        }
+    }
 }

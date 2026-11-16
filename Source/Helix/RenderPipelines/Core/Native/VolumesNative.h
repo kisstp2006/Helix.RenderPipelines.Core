@@ -43,6 +43,14 @@ namespace helix::rendering
             if (VolumeParameter* p = VolumeParameter::Find(parameter); p && p->kind() == ParameterKind::Texture)
                 static_cast<TextureParameter*>(p)->SetTexture(texture);
         }
+        // A limited parameter's min (x) and max (y), i 1 (0: no limits).
+        HX_FUNCTION() static ParameterValue Limits(u64 parameter)
+        {
+            ParameterValue v;
+            if (VolumeParameter* p = VolumeParameter::Find(parameter); p && p->GetLimits(v.x, v.y))
+                v.i = 1;
+            return v;
+        }
         HX_FUNCTION() static bool OverrideState(u64 parameter);
         HX_FUNCTION() static void SetOverrideState(u64 parameter, bool value);
 

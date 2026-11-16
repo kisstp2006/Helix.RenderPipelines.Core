@@ -47,6 +47,11 @@ namespace helix::rendering
     class TexturesNative
     {
     public:
+        // CoreUtils' cubes: 0 black, 1 white, 2 magenta.
+        HX_FUNCTION() static engine::Cubemap* CubeTexture(i32 which)
+        {
+            return which == 0 ? CoreUtils::blackCubeTexture() : which == 1 ? CoreUtils::whiteCubeTexture() : CoreUtils::magentaCubeTexture();
+        }
         // Systems (0: the default one).
         HX_FUNCTION() static u64 CreateSystem() { return (new RTHandleSystem())->Id(); }
         HX_FUNCTION() static u64 DefaultSystem() { return RTHandles::DefaultInstance().Id(); }

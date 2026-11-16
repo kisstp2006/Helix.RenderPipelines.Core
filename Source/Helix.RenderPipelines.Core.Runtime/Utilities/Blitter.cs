@@ -24,7 +24,7 @@ namespace HelixEngine.Rendering
         // ------------------------------------------------------------------------------------- into the bound target
 
         public static void BlitTexture(CommandBuffer cmd, RTHandle source, Vector4 scaleBias, float mipLevel, bool bilinear) =>
-            TexturesNative.BlitTexture(cmd.Id, Targets.Data(source), scaleBias, mipLevel, bilinear);
+            TexturesNative.BlitTexture(global::Helix.Interop.RenderingInterop.IdOf(cmd), Targets.Data(source), scaleBias, mipLevel, bilinear);
 
         public static void BlitTexture2D(CommandBuffer cmd, RTHandle source, Vector4 scaleBias, float mipLevel, bool bilinear) =>
             BlitTexture(cmd, source, scaleBias, mipLevel, bilinear);
@@ -33,36 +33,36 @@ namespace HelixEngine.Rendering
             BlitTexture(cmd, (RenderTargetIdentifier)source, scaleBias, material, pass);
 
         public static void BlitTexture(CommandBuffer cmd, RenderTargetIdentifier source, Vector4 scaleBias, Material material, int pass) =>
-            TexturesNative.BlitTextureMaterial(cmd.Id, Targets.Data(source), scaleBias, material, pass);
+            TexturesNative.BlitTextureMaterial(global::Helix.Interop.RenderingInterop.IdOf(cmd), Targets.Data(source), scaleBias, material, pass);
 
         /// <summary>A material's full screen pass without a source (its own inputs).</summary>
-        public static void BlitTexture(CommandBuffer cmd, Vector4 scaleBias, Material material, int pass) => TexturesNative.BlitNoSource(cmd.Id, scaleBias, material, pass);
+        public static void BlitTexture(CommandBuffer cmd, Vector4 scaleBias, Material material, int pass) => TexturesNative.BlitNoSource(global::Helix.Interop.RenderingInterop.IdOf(cmd), scaleBias, material, pass);
 
         // ------------------------------------------------------------------------------------------- into a target
 
         public static void BlitTexture(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier destination, Material material, int pass) =>
-            TexturesNative.BlitTextureInto(cmd.Id, Targets.Data(source), Targets.Data(destination), -1, -1, material, pass);
+            TexturesNative.BlitTextureInto(global::Helix.Interop.RenderingInterop.IdOf(cmd), Targets.Data(source), Targets.Data(destination), -1, -1, material, pass);
 
         public static void BlitTexture(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier destination, RenderBufferLoadAction loadAction,
                                        RenderBufferStoreAction storeAction, Material material, int pass) =>
-            TexturesNative.BlitTextureInto(cmd.Id, Targets.Data(source), Targets.Data(destination), (int)loadAction, (int)storeAction, material, pass);
+            TexturesNative.BlitTextureInto(global::Helix.Interop.RenderingInterop.IdOf(cmd), Targets.Data(source), Targets.Data(destination), (int)loadAction, (int)storeAction, material, pass);
 
         /// <summary>The used part of a handle into another (its viewport set).</summary>
         public static void BlitCameraTexture(CommandBuffer cmd, RTHandle source, RTHandle destination, float mipLevel = 0.0f, bool bilinear = false) =>
-            TexturesNative.BlitCameraTexture(cmd.Id, source?.m_Id ?? 0, destination?.m_Id ?? 0, default, true, mipLevel, bilinear);
+            TexturesNative.BlitCameraTexture(global::Helix.Interop.RenderingInterop.IdOf(cmd), source?.m_Id ?? 0, destination?.m_Id ?? 0, default, true, mipLevel, bilinear);
 
         public static void BlitCameraTexture(CommandBuffer cmd, RTHandle source, RTHandle destination, Vector4 scaleBias, float mipLevel = 0.0f, bool bilinear = false) =>
-            TexturesNative.BlitCameraTexture(cmd.Id, source?.m_Id ?? 0, destination?.m_Id ?? 0, scaleBias, false, mipLevel, bilinear);
+            TexturesNative.BlitCameraTexture(global::Helix.Interop.RenderingInterop.IdOf(cmd), source?.m_Id ?? 0, destination?.m_Id ?? 0, scaleBias, false, mipLevel, bilinear);
 
         public static void BlitCameraTexture(CommandBuffer cmd, RTHandle source, RTHandle destination, Rect destViewport, float mipLevel = 0.0f, bool bilinear = false) =>
-            TexturesNative.BlitCameraTextureViewport(cmd.Id, source?.m_Id ?? 0, destination?.m_Id ?? 0, destViewport, mipLevel, bilinear);
+            TexturesNative.BlitCameraTextureViewport(global::Helix.Interop.RenderingInterop.IdOf(cmd), source?.m_Id ?? 0, destination?.m_Id ?? 0, destViewport, mipLevel, bilinear);
 
         public static void BlitCameraTexture(CommandBuffer cmd, RTHandle source, RTHandle destination, Material material, int pass) =>
-            TexturesNative.BlitCameraTextureMaterial(cmd.Id, source?.m_Id ?? 0, destination?.m_Id ?? 0, -1, -1, material, pass);
+            TexturesNative.BlitCameraTextureMaterial(global::Helix.Interop.RenderingInterop.IdOf(cmd), source?.m_Id ?? 0, destination?.m_Id ?? 0, -1, -1, material, pass);
 
         public static void BlitCameraTexture(CommandBuffer cmd, RTHandle source, RTHandle destination, RenderBufferLoadAction loadAction, RenderBufferStoreAction storeAction,
                                              Material material, int pass) =>
-            TexturesNative.BlitCameraTextureMaterial(cmd.Id, source?.m_Id ?? 0, destination?.m_Id ?? 0, (int)loadAction, (int)storeAction, material, pass);
+            TexturesNative.BlitCameraTextureMaterial(global::Helix.Interop.RenderingInterop.IdOf(cmd), source?.m_Id ?? 0, destination?.m_Id ?? 0, (int)loadAction, (int)storeAction, material, pass);
 
         // ----------------------------------------------------------------------------------- render graph passes
 
@@ -94,10 +94,10 @@ namespace HelixEngine.Rendering
 
         /// <summary>The source (scaleBiasTex of it) into the part of the target scaleBiasRT gives (xy size, zw offset, 0 to 1).</summary>
         public static void BlitQuad(CommandBuffer cmd, Texture source, Vector4 scaleBiasTex, Vector4 scaleBiasRT, int mipLevelTex, bool bilinear) =>
-            TexturesNative.BlitQuad(cmd.Id, source, scaleBiasTex, scaleBiasRT, mipLevelTex, bilinear);
+            TexturesNative.BlitQuad(global::Helix.Interop.RenderingInterop.IdOf(cmd), source, scaleBiasTex, scaleBiasRT, mipLevelTex, bilinear);
 
         /// <summary>A color texture into the bound target, and its depth from a depth texture when blitDepth.</summary>
         public static void BlitColorAndDepth(CommandBuffer cmd, Texture sourceColor, RenderTexture sourceDepth, Vector4 scaleBias, float mipLevel, bool blitDepth) =>
-            TexturesNative.BlitColorAndDepth(cmd.Id, sourceColor, sourceDepth, scaleBias, mipLevel, blitDepth);
+            TexturesNative.BlitColorAndDepth(global::Helix.Interop.RenderingInterop.IdOf(cmd), sourceColor, sourceDepth, scaleBias, mipLevel, blitDepth);
     }
 }

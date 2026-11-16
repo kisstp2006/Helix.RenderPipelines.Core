@@ -429,6 +429,8 @@ namespace helix::rendering
         return g ? *g : nullptr;
     }
 
+    const RenderGraphParameters& RenderGraph::parameters() const { return impl_->parameters; }
+
     bool RenderGraph::BeginRecording(const RenderGraphParameters& parameters)
     {
         SetError(ErrorKind::None, String());
@@ -549,6 +551,18 @@ namespace helix::rendering
     {
         ScriptableRenderContext* c = impl_->parameters.scriptableRenderContext;
         return ImportRendererList(c ? c->CreateRendererList(desc) : engine::RendererUtils::RendererList::nullRendererList());
+    }
+
+    RendererListHandle RenderGraph::CreateSkyboxRendererList(engine::Camera* camera)
+    {
+        ScriptableRenderContext* c = impl_->parameters.scriptableRenderContext;
+        return ImportRendererList(c && camera ? c->CreateSkyboxRendererList(camera) : engine::RendererUtils::RendererList::nullRendererList());
+    }
+
+    RendererListHandle RenderGraph::CreateShadowRendererList(const engine::ShadowDrawingSettings& settings)
+    {
+        ScriptableRenderContext* c = impl_->parameters.scriptableRenderContext;
+        return ImportRendererList(c ? c->CreateShadowRendererList(settings) : engine::RendererUtils::RendererList::nullRendererList());
     }
 
     u32 RenderGraph::BeginPass(StringView name, PassKind kind)

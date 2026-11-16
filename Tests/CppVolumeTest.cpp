@@ -5,6 +5,11 @@
 #include <Helix/Core/Strings/Format.h>
 #include <Helix/Engine/GameObject/GameObject.h>
 #include <Helix/Engine/GameObject/Lifecycle.h>
+#include <Helix/Engine/Asset/Asset.h>
+#include <Helix/Engine/Scene/SceneFile.h>
+#include <Helix/Engine/Script/MonoScript.h>
+#include <Helix/Engine/Scene/SceneManager.h>
+#include <Helix/Engine/Script/ScriptRuntime.h>
 #include <Helix/Engine/Transform/Transform.h>
 #include <Helix/Testing/Test.h>
 
@@ -21,8 +26,9 @@ HX_TEST(Cpp, VolumesBlendByPriorityWeightDistanceAndLayer)
 {
     // The C# volume test's scenario with C++ components: the same values.
     HX_REQUIRE(StartScripts());
-    scripting::TypeId testType = scripting::FindType("CoreTests.CppTestVolume"), otherType = scripting::FindType("CoreTests.CppOtherVolume");
-    scripting::TypeId profileType = scripting::FindType("HelixEngine.Rendering.VolumeProfile"), volumeType = scripting::FindType("HelixEngine.Rendering.Volume");
+    // The core's types through TypeOf in the test program (bound by the core's binary).
+    scripting::TypeId testType = scripting::TypeOf<CppTestVolume>(), otherType = scripting::TypeOf<CppOtherVolume>();
+    scripting::TypeId profileType = scripting::TypeOf<VolumeProfile>(), volumeType = scripting::TypeOf<Volume>();
     HX_REQUIRE(testType.IsValid() && otherType.IsValid() && profileType.IsValid() && volumeType.IsValid());
     auto newProfile = [&] { return static_cast<VolumeProfile*>(engine::ScriptableObject::CreateInstance(profileType)); };
     VolumeManager& manager = VolumeManager::instance();
@@ -115,7 +121,7 @@ HX_TEST(Cpp, VolumesBlendByPriorityWeightDistanceAndLayer)
     pb->Remove(otherType);
     notes.Push(Format("profile:{}:{}:{}:{}", Bool(refused), Bool(had), Bool(pb->Has(otherType)), pb->componentCount()));
 
-    const char* expected[] = {"params:5:True:True:20",
+    const char* expected[] = {"params:6:True:True:20",
                               "global:7.000:0.000:True:8.000:5.000:7:True",
                               "near:16.750:0.000:True:8.000:5.000:7:True",
                               "far:7.000:0.000:True:8.000:5.000:7:True",
@@ -138,5 +144,91 @@ HX_TEST(Cpp, VolumesBlendByPriorityWeightDistanceAndLayer)
         engine::DestroyImmediate(g);
     manager.DestroyStack(stack);
     manager.Deinitialize();
+    engine::testing::Cleanup();
+}
+
+HX_TEST(Cpp, VolumeParameterMembersInCSharpAndInFiles)
+{
+    // C# sees a C++ component's parameter members as objects of their C# classes; files hold them as the reference.
+    HX_REQUIRE(StartScripts());
+    Notes().Clear();
+    engine::GameObject* host = engine::GameObject::Create("ParameterHost");
+    host->AddComponent(CSharp("CsCppParameters").type);
+    engine::RunScriptPhase(engine::ScriptMessage::Update);
+    HX_CHECK(SameNotes({"cpp:True:0:20:20:True:0.5:NoInterpFloatParameter:6", "enum:CppTestModeParameter:Second:Third:True"}));
+    engine::DestroyImmediate(host);
+
+    // A scene of the C++ script (its asset by guid): read, changed, written again.
+    Guid guid;
+    Guid::TryParse("c0000000000000000000000000000001", guid);
+    engine::MonoScript* script = engine::MonoScript::FromScriptClass(*engine::FindScriptClass(scripting::TypeOf<CppParameterHolder>()));
+    engine::RegisterAssetObject(guid, 11500000, script, true);
+    const char* file = R"(%YAML 1.1
+%TAG !h! tag:helixengine,2026:
+--- !h!1 &100
+GameObject:
+  m_Component:
+  - component: {fileID: 101}
+  - component: {fileID: 102}
+  m_Name: Holder
+  m_IsActive: 1
+--- !h!4 &101
+Transform:
+  m_GameObject: {fileID: 100}
+  m_Children: []
+  m_Father: {fileID: 0}
+--- !h!114 &102
+GameBehaviour:
+  m_GameObject: {fileID: 100}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: c0000000000000000000000000000001, type: 3}
+  strength:
+    m_OverrideState: 1
+    m_Value: 12
+  tint:
+    m_OverrideState: 0
+    m_Value: {r: 0.25, g: 0.5, b: 0.75, a: 1}
+  mask:
+    m_OverrideState: 1
+    m_Value:
+      serializedVersion: 2
+      m_Bits: 6
+  texture:
+    m_OverrideState: 0
+    m_Value: {fileID: 0}
+  mode:
+    m_OverrideState: 1
+    m_Value: 2
+)";
+    engine::Scene scene = engine::SceneManager::CreateScene("Parameters");
+    Array<String> errors;
+    HX_REQUIRE(engine::ReadSceneFile(StringView(file), scene, errors));
+    for (const String& e : errors)
+        std::printf("    %.*s\n", int(e.Size()), e.Data());
+    Array<engine::GameObject*> roots = scene.GetRootGameObjects();
+    HX_REQUIRE(errors.Empty() && roots.Size() == 1);
+    auto* holder = static_cast<CppParameterHolder*>(roots[0]->GetComponent(scripting::TypeOf<CppParameterHolder>()));
+    HX_REQUIRE(holder != nullptr);
+    // The read value is kept within the parameter's limits (0 to 10).
+    HX_CHECK(holder->strength.value() == 10.0f && holder->strength.overrideState() && !holder->tint.overrideState() &&
+             holder->tint.value().b == 0.75f && holder->mask.value().value() == 6 && holder->mask.overrideState() && !holder->texture.overrideState() &&
+             holder->mode.value() == CppTestMode::Third && holder->mode.overrideState());
+    holder->mode.Override(CppTestMode::Second);
+    holder->strength.Override(3.5f);
+    holder->tint.SetOverrideState(true);
+    String text, error;
+    HX_REQUIRE(engine::WriteSceneYaml(scene, text, error));
+    bool written = text.View().Contains("  strength:\n    m_OverrideState: 1\n    m_Value: 3.5\n") &&
+                   text.View().Contains("  tint:\n    m_OverrideState: 1\n    m_Value: {r: 0.25, g: 0.5, b: 0.75, a: 1}\n") &&
+                   text.View().Contains("  mask:\n    m_OverrideState: 1\n    m_Value:\n      serializedVersion: 2\n      m_Bits: 6\n") &&
+                   text.View().Contains("  texture:\n    m_OverrideState: 0\n    m_Value: {fileID: 0}\n") &&
+                   text.View().Contains("  mode:\n    m_OverrideState: 1\n    m_Value: 1\n");
+    if (!written)
+        std::printf("%.*s\n", int(text.Size()), text.Data());
+    HX_CHECK(written);
+    engine::SceneManager::UnloadSceneAsync(scene);
+    engine::SceneManager::ProcessSceneLoads();
+    engine::ResetAssets();
+    engine::DestroyImmediate(script, true);
     engine::testing::Cleanup();
 }

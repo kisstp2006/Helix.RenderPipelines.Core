@@ -9,6 +9,9 @@ namespace HelixEngine.Rendering
     {
         public static Texture2D whiteTexture => Texture2D.whiteTexture;
         public static Texture2D blackTexture => Texture2D.blackTexture;
+        public static Cubemap blackCubeTexture => TexturesNative.CubeTexture(0);
+        public static Cubemap whiteCubeTexture => TexturesNative.CubeTexture(1);
+        public static Cubemap magentaCubeTexture => TexturesNative.CubeTexture(2);
 
         // ------------------------------------------------------------------------------------------------ targets
 
@@ -61,7 +64,7 @@ namespace HelixEngine.Rendering
 
         public static void SetRenderTarget(CommandBuffer cmd, RTHandle buffer, ClearFlag clearFlag, Color clearColor, int miplevel = 0,
                                            CubemapFace cubemapFace = CubemapFace.Unknown, int depthSlice = -1) =>
-            TexturesNative.SetHandleTarget(cmd.Id, buffer?.m_Id ?? 0, 0, (int)clearFlag, clearColor, miplevel, (int)cubemapFace, depthSlice);
+            TexturesNative.SetHandleTarget(global::Helix.Interop.RenderingInterop.IdOf(cmd), buffer?.m_Id ?? 0, 0, (int)clearFlag, clearColor, miplevel, (int)cubemapFace, depthSlice);
 
         public static void SetRenderTarget(CommandBuffer cmd, RTHandle buffer, ClearFlag clearFlag = ClearFlag.None, int miplevel = 0,
                                            CubemapFace cubemapFace = CubemapFace.Unknown, int depthSlice = -1) =>
@@ -69,7 +72,7 @@ namespace HelixEngine.Rendering
 
         public static void SetRenderTarget(CommandBuffer cmd, RTHandle colorBuffer, RTHandle depthBuffer, ClearFlag clearFlag, Color clearColor, int miplevel = 0,
                                            CubemapFace cubemapFace = CubemapFace.Unknown, int depthSlice = -1) =>
-            TexturesNative.SetHandleTarget(cmd.Id, colorBuffer?.m_Id ?? 0, depthBuffer?.m_Id ?? 0, (int)clearFlag, clearColor, miplevel, (int)cubemapFace, depthSlice);
+            TexturesNative.SetHandleTarget(global::Helix.Interop.RenderingInterop.IdOf(cmd), colorBuffer?.m_Id ?? 0, depthBuffer?.m_Id ?? 0, (int)clearFlag, clearColor, miplevel, (int)cubemapFace, depthSlice);
 
         public static void SetRenderTarget(CommandBuffer cmd, RTHandle colorBuffer, RTHandle depthBuffer, ClearFlag clearFlag = ClearFlag.None, int miplevel = 0,
                                            CubemapFace cubemapFace = CubemapFace.Unknown, int depthSlice = -1) =>
@@ -77,9 +80,9 @@ namespace HelixEngine.Rendering
 
         public static void SetRenderTarget(CommandBuffer cmd, RTHandle buffer, RenderBufferLoadAction loadAction, RenderBufferStoreAction storeAction, ClearFlag clearFlag,
                                            Color clearColor) =>
-            TexturesNative.SetHandleTargetActions(cmd.Id, buffer?.m_Id ?? 0, (int)loadAction, (int)storeAction, (int)clearFlag, clearColor);
+            TexturesNative.SetHandleTargetActions(global::Helix.Interop.RenderingInterop.IdOf(cmd), buffer?.m_Id ?? 0, (int)loadAction, (int)storeAction, (int)clearFlag, clearColor);
 
-        public static void SetViewport(CommandBuffer cmd, RTHandle target, int miplevel = 0) => TexturesNative.SetViewport(cmd.Id, target?.m_Id ?? 0, miplevel);
+        public static void SetViewport(CommandBuffer cmd, RTHandle target, int miplevel = 0) => TexturesNative.SetViewport(global::Helix.Interop.RenderingInterop.IdOf(cmd), target?.m_Id ?? 0, miplevel);
 
         // ---------------------------------------------------------------------------------------------- materials
 

@@ -2,7 +2,11 @@
 
 #include <Helix/Core/Containers/Array.h>
 #include <Helix/Engine/GameObject/Tags.h>
+#include <Helix/Engine/Math/MathTransfer.h>
 #include <Helix/Engine/Texture/Texture.h>
+#include <Helix/Serialization/Transfer/Dynamic.h>
+
+#include <type_traits>
 
 // Volume parameters: the values of a volume component a volume overrides (its override state) and the stack blends
 // (Interp from the stack's value to the profile's by the volume's weight). The typed parameters of the native kinds
@@ -71,6 +75,12 @@ namespace helix::rendering
         // The value as C# reads and writes it (the native kinds).
         virtual ParameterValue Get() const { return {}; }
         virtual void Set(const ParameterValue&) {}
+        // The limits a value is kept within (false: none), for C#'s min and max.
+        virtual bool GetLimits(f32& min, f32& max) const
+        {
+            (void)min, (void)max;
+            return false;
+        }
 
     protected:
         bool overrideState_ = false;
@@ -137,54 +147,78 @@ namespace helix::rendering
         Limited(T value, T min, T max, bool overrideState = false) : Base(value, overrideState), min(min), max(max) {}
         T min, max;
         T value() const override { return this->value_; }
+        bool GetLimits(f32& lo, f32& hi) const override
+        {
+            lo = f32(min), hi = f32(max);
+            return true;
+        }
         void SetValue(T value) override { this->value_ = value < min ? min : value > max ? max : value; }
         using Base::SetValue;
     };
 
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.BoolParameter")
     using BoolParameter = VolumeParameterOf<bool>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.LayerMaskParameter")
     using LayerMaskParameter = VolumeParameterOf<LayerMask>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.IntParameter")
     using IntParameter = LerpParameter<i32>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.NoInterpIntParameter")
     using NoInterpIntParameter = VolumeParameterOf<i32>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.FloatParameter")
     using FloatParameter = LerpParameter<f32>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.NoInterpFloatParameter")
     using NoInterpFloatParameter = VolumeParameterOf<f32>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.Vector2Parameter")
     using Vector2Parameter = LerpParameter<Vector2>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.NoInterpVector2Parameter")
     using NoInterpVector2Parameter = VolumeParameterOf<Vector2>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.Vector3Parameter")
     using Vector3Parameter = LerpParameter<Vector3>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.NoInterpVector3Parameter")
     using NoInterpVector3Parameter = VolumeParameterOf<Vector3>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.Vector4Parameter")
     using Vector4Parameter = LerpParameter<Vector4>;
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.NoInterpVector4Parameter")
     using NoInterpVector4Parameter = VolumeParameterOf<Vector4>;
 
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.ClampedIntParameter")
     class ClampedIntParameter : public Limited<IntParameter, i32>
     {
     public:
         using Limited::Limited;
     };
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.ClampedFloatParameter")
     class ClampedFloatParameter : public Limited<FloatParameter, f32>
     {
     public:
         using Limited::Limited;
     };
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.NoInterpClampedFloatParameter")
     class NoInterpClampedFloatParameter : public Limited<NoInterpFloatParameter, f32>
     {
     public:
         using Limited::Limited;
     };
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.MinFloatParameter")
     class MinFloatParameter : public Limited<FloatParameter, f32>
     {
     public:
         MinFloatParameter(f32 value, f32 min, bool overrideState = false) : Limited(value, min, 3.402823466e+38f, overrideState) {}
     };
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.MaxFloatParameter")
     class MaxFloatParameter : public Limited<FloatParameter, f32>
     {
     public:
         MaxFloatParameter(f32 value, f32 max, bool overrideState = false) : Limited(value, -3.402823466e+38f, max, overrideState) {}
     };
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.MinIntParameter")
     class MinIntParameter : public Limited<IntParameter, i32>
     {
     public:
         MinIntParameter(i32 value, i32 min, bool overrideState = false) : Limited(value, min, 0x7fffffff, overrideState) {}
     };
 
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.ColorParameter")
     class ColorParameter : public LerpParameter<Color>
     {
     public:
@@ -197,6 +231,7 @@ namespace helix::rendering
     };
 
     // A texture by its object (a destroyed one reads null).
+    HX_HANDLE(CSharp = "HelixEngine.Rendering.TextureParameter")
     class TextureParameter : public VolumeParameterOf<engine::EntityId>
     {
     public:
@@ -302,6 +337,15 @@ namespace helix::rendering
             static ParameterValue Get(Color v) { return {.x = v.r, .y = v.g, .z = v.b, .w = v.a}; }
             static Color Set(const ParameterValue& v) { return Color(v.x, v.y, v.z, v.w); }
         };
+        // An enum is of the int kind (C#'s VolumeParameter<the enum> reads and writes its number).
+        template <class T>
+            requires std::is_enum_v<T>
+        struct ParameterTraits<T>
+        {
+            static constexpr ParameterKind kKind = ParameterKind::Int;
+            static ParameterValue Get(T v) { return {.i = i32(v)}; }
+            static T Set(const ParameterValue& v) { return T(v.i); }
+        };
         template <>
         struct ParameterTraits<engine::EntityId>
         {
@@ -333,4 +377,55 @@ namespace helix::rendering
             return Color(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, a.a + (b.a - a.a) * t);
         }
     }
+}
+
+// The parameter members of C++ volume components in files, in the reference's layout: m_OverrideState and m_Value (a
+// layer mask as m_Bits, a texture as an object reference).
+namespace helix::serialization
+{
+    template <class T>
+        requires std::is_base_of_v<rendering::VolumeParameter, T> && requires(const T& p) { p.value(); }
+    struct TransferTraits<T>
+    {
+        static constexpr StringView kTypeName = "VolumeParameter";
+
+        struct Bits
+        {
+            static constexpr StringView kTypeName = "BitField";
+            static constexpr i32 kVersion = 2;
+            u32 bits = 0;
+            template <class V>
+            void Transfer(V& v)
+            {
+                v.Field("m_Bits", bits);
+            }
+        };
+
+        template <class V>
+        static void Transfer(V& v, T& p)
+        {
+            using Value = std::remove_cvref_t<decltype(p.value())>;
+            bool overrides = p.overrideState();
+            v.Field("m_OverrideState", overrides);
+            p.SetOverrideState(overrides);
+            if constexpr (std::is_same_v<Value, engine::EntityId>)
+            {
+                DynamicReferenceValue reference{engine::EntityId::ToULong(p.value())};
+                v.Field("m_Value", reference);
+                p.SetValue(engine::EntityId::FromULong(reference.id));
+            }
+            else if constexpr (std::is_same_v<Value, engine::LayerMask>)
+            {
+                Bits bits{u32(p.value().value())};
+                v.Field("m_Value", bits);
+                p.SetValue(engine::LayerMask(i32(bits.bits)));
+            }
+            else
+            {
+                Value value = p.value();
+                v.Field("m_Value", value);
+                p.SetValue(value);
+            }
+        }
+    };
 }

@@ -48,6 +48,15 @@ Rendering.ColorParameter,hdr,bool hdr
 Rendering.ColorParameter,showAlpha,bool showAlpha
 Rendering.ColorParameter,showEyeDropper,bool showEyeDropper
 Rendering.CommandBufferHelpers,GetNativeCommandBuffer,static CommandBuffer GetNativeCommandBuffer(UnsafeCommandBuffer)
+Rendering.ContextContainer,.ctor,ContextContainer()
+Rendering.ContextContainer,Contains,bool Contains<T>()
+Rendering.ContextContainer,Create,T Create<T>()
+Rendering.ContextContainer,Dispose,void Dispose()
+Rendering.ContextContainer,Get,T Get<T>()
+Rendering.ContextContainer,GetOrCreate,T GetOrCreate<T>()
+Rendering.ContextItem,.ctor,ContextItem()
+Rendering.ContextItem,Reset,void Reset()
+Rendering.ContextItem,operators,"Equality(ContextItem, ContextItem) / Inequality(ContextItem, ContextItem) / Implicit(ContextItem)"
 Rendering.CoreUtils,ClearRenderTarget,"static void ClearRenderTarget(CommandBuffer, ClearFlag, Color)"
 Rendering.CoreUtils,CreateEngineMaterial,static Material CreateEngineMaterial(string) / static Material CreateEngineMaterial(Shader)
 Rendering.CoreUtils,Destroy,static void Destroy(Object) / static void Destroy(params Object[])
@@ -57,7 +66,10 @@ Rendering.CoreUtils,GetTextureAutoName,"static string GetTextureAutoName(int, in
 Rendering.CoreUtils,SetKeyword,"static void SetKeyword(CommandBuffer, string, bool) / static void SetKeyword(Material, string, bool) / static void SetKeyword(Material, LocalKeyword, bool)"
 Rendering.CoreUtils,SetRenderTarget,"static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, ClearFlag, Color, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, ClearFlag = None, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, RenderTargetIdentifier, ClearFlag, Color, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, RenderTargetIdentifier, ClearFlag = None, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier[], RenderTargetIdentifier, ClearFlag = None) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier[], RenderTargetIdentifier, ClearFlag, Color) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, RenderBufferLoadAction, RenderBufferStoreAction, ClearFlag, Color) / static void SetRenderTarget(CommandBuffer, RenderTargetIdentifier, RenderBufferLoadAction, RenderBufferStoreAction, ClearFlag) / static void SetRenderTarget(CommandBuffer, RTHandle, ClearFlag, Color, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RTHandle, ClearFlag = None, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RTHandle, RTHandle, ClearFlag, Color, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RTHandle, RTHandle, ClearFlag = None, int = 0, CubemapFace = Unknown, int = -1) / static void SetRenderTarget(CommandBuffer, RTHandle, RenderBufferLoadAction, RenderBufferStoreAction, ClearFlag, Color)"
 Rendering.CoreUtils,SetViewport,"static void SetViewport(CommandBuffer, RTHandle, int = 0)"
+Rendering.CoreUtils,blackCubeTexture,static Cubemap blackCubeTexture { get; }
 Rendering.CoreUtils,blackTexture,static Texture2D blackTexture { get; }
+Rendering.CoreUtils,magentaCubeTexture,static Cubemap magentaCubeTexture { get; }
+Rendering.CoreUtils,whiteCubeTexture,static Cubemap whiteCubeTexture { get; }
 Rendering.CoreUtils,whiteTexture,static Texture2D whiteTexture { get; }
 Rendering.DebugManager,GetItem,DebugUI.Widget GetItem(string)
 Rendering.DebugManager,GetItems,DebugUI.Widget[] GetItems(DebugUI.Flags)
@@ -281,6 +293,11 @@ Rendering.PostProcessVolumeComponent,Release,void Release()
 Rendering.PostProcessVolumeComponent,Render,"void Render(RasterCommandBuffer, RTHandle)"
 Rendering.PostProcessVolumeComponent,Setup,void Setup()
 Rendering.PostProcessVolumeComponent,injectionPoint,PostProcessInjectionPoint injectionPoint { get; }
+Rendering.ProfilingSampler,.ctor,ProfilingSampler(string)
+Rendering.ProfilingSampler,Begin,void Begin(CommandBuffer)
+Rendering.ProfilingSampler,End,void End(CommandBuffer)
+Rendering.ProfilingSampler,Get,static ProfilingSampler Get<TEnum>(TEnum)
+Rendering.ProfilingSampler,name,string name { get; }
 Rendering.RTHandle,ClearCustomHandleProperties,void ClearCustomHandleProperties()
 Rendering.RTHandle,GetScaledSize,Vector2Int GetScaledSize(Vector2Int) / Vector2Int GetScaledSize()
 Rendering.RTHandle,Release,void Release()
@@ -371,6 +388,8 @@ Rendering.RenderGraphModule.RenderGraph,AddUnsafePass,"IUnsafeRenderGraphBuilder
 Rendering.RenderGraphModule.RenderGraph,BeginRecording,void BeginRecording(ref RenderGraphParameters)
 Rendering.RenderGraphModule.RenderGraph,Cleanup,void Cleanup()
 Rendering.RenderGraphModule.RenderGraph,CreateRendererList,RendererListHandle CreateRendererList(ref RendererListDesc) / RendererListHandle CreateRendererList(ref RendererListParams)
+Rendering.RenderGraphModule.RenderGraph,CreateShadowRendererList,RendererListHandle CreateShadowRendererList(ref ShadowDrawingSettings)
+Rendering.RenderGraphModule.RenderGraph,CreateSkyboxRendererList,RendererListHandle CreateSkyboxRendererList(ref Camera)
 Rendering.RenderGraphModule.RenderGraph,CreateTexture,TextureHandle CreateTexture(ref TextureDesc) / TextureHandle CreateTexture(TextureHandle)
 Rendering.RenderGraphModule.RenderGraph,EndFrame,void EndFrame()
 Rendering.RenderGraphModule.RenderGraph,EndRecordingAndExecute,void EndRecordingAndExecute()

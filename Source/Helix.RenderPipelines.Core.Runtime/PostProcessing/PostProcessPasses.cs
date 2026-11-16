@@ -26,7 +26,14 @@ namespace HelixEngine.Rendering
         public virtual void Render(RasterCommandBuffer cmd, RTHandle source)
         {
             if (!((global::Helix.Interop.INativeObject)this).HxDerived && cmd != null)
-                PostNative.Render(this, cmd.m_WrappedCommandBuffer.Id, source != null ? source.m_Id : 0);
+                PostNative.Render(this, global::Helix.Interop.RenderingInterop.IdOf(cmd.m_WrappedCommandBuffer), source != null ? source.m_Id : 0);
+        }
+
+        // The native passes (of either language) reach a C# effect's Render once one is enabled.
+        protected override void OnEnable()
+        {
+            EnsureRender();
+            base.OnEnable();
         }
 
         protected override void OnDisable()
@@ -51,15 +58,18 @@ namespace HelixEngine.Rendering
             try
             {
                 var component = (PostProcessVolumeComponent)GCHandle.FromIntPtr((IntPtr)wrapper).Target;
-                RenderGraph graph = RenderGraph.s_Executing;
+                RenderGraph graph = RenderGraph.executing;
                 RasterCommandBuffer cmd = graph?.m_RasterCommands;
-                if (cmd == null || cmd.m_WrappedCommandBuffer.Id != commandBuffer)
-                    throw new InvalidOperationException($"{component.GetType().Name}.Render: a C# post process component renders in the frame of a C# render graph");
+                if (cmd == null || global::Helix.Interop.RenderingInterop.IdOf(cmd.m_WrappedCommandBuffer) != commandBuffer)
+                    throw new InvalidOperationException($"{component.GetType().Name}.Render: the command buffer is not the executing render graph's");
                 component.Render(cmd, RTHandle.Of(source));
             }
             catch (Exception e)
             {
-                RenderGraph.s_Failure ??= e;
+                if (RenderGraph.s_Executing != null)
+                    RenderGraph.s_Failure ??= e;
+                else
+                    Debug.LogException(e);
             }
         }
     }

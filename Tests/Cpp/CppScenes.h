@@ -25,6 +25,16 @@ namespace helix::rpcore::testing
         return notes;
     }
 
+    // What C# records into a graph made in C++ (CsGraphRecorder overrides Record): C# passes on a C++ pipeline's graph.
+    HX_CLASS(Namespace = "CoreTests")
+    class CppGraphRecorder : public engine::ScriptableObject
+    {
+    public:
+        HX_FUNCTION() virtual void Record(u64 graph, u64 color) { (void)graph, (void)color; }
+        // Puts C# volume components into the profile (their C# parameters are set in C#).
+        HX_FUNCTION() virtual void Prepare(rendering::VolumeProfile* profile) { (void)profile; }
+    };
+
     // CsBlitTests: a 2x2 texture into the screen straight, through a render texture handle, into the top right
     // quarter, and with the color and depth blit; a mode each update.
     HX_CLASS(Namespace = "CoreTests")
@@ -342,13 +352,13 @@ namespace helix::rpcore::testing
             tex->Apply(false);
             Material* textured = Material::Create(Shader::Find("Tests/Textured"));
             textured->SetMainTexture(tex);
-            auto* drawer = static_cast<CppCoreDrawer*>(gameObject()->AddComponent(scripting::FindType("CoreTests.CppCoreDrawer")));
+            auto* drawer = static_cast<CppCoreDrawer*>(gameObject()->AddComponent(scripting::TypeOf<CppCoreDrawer>()));
             drawer->mesh = quad;
             drawer->material = textured;
 
-            auto* profile = static_cast<rendering::VolumeProfile*>(ScriptableObject::CreateInstance(scripting::FindType("HelixEngine.Rendering.VolumeProfile")));
-            static_cast<CppTintPost*>(profile->Add(scripting::FindType("CoreTests.CppTintPost")))->tint.Override(Color(1, 0.5f, 0.25f, 1));
-            volume_ = static_cast<rendering::Volume*>(GameObject::Create("CoreVolume")->AddComponent(scripting::FindType("HelixEngine.Rendering.Volume")));
+            auto* profile = static_cast<rendering::VolumeProfile*>(ScriptableObject::CreateInstance(scripting::TypeOf<rendering::VolumeProfile>()));
+            profile->Add<CppTintPost>()->tint.Override(Color(1, 0.5f, 0.25f, 1));
+            volume_ = static_cast<rendering::Volume*>(GameObject::Create("CoreVolume")->AddComponent(scripting::TypeOf<rendering::Volume>()));
             volume_->SetSharedProfile(profile);
             volume_->weight = 0;
         }

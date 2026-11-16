@@ -26,6 +26,10 @@ namespace helix::rendering
     class CoreUtils
     {
     public:
+        // 1 x 1 cubes of one color (made on first use and kept).
+        static engine::Cubemap* blackCubeTexture() { return engine::Cubemap::black(); }
+        static engine::Cubemap* whiteCubeTexture() { return engine::Cubemap::white(); }
+        static engine::Cubemap* magentaCubeTexture();
         static void ClearRenderTarget(CommandBuffer& cmd, ClearFlag clearFlag, Color clearColor);
         static void SetRenderTarget(CommandBuffer& cmd, const RenderTargetIdentifier& buffer, ClearFlag clearFlag = ClearFlag::None,
                                     Color clearColor = Color(0, 0, 0, 0), i32 mipLevel = 0, engine::CubemapFace face = engine::CubemapFace::Unknown,

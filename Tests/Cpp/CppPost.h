@@ -14,8 +14,7 @@
 #include <Helix/RenderPipelines/Core/Volume/Volume.h>
 
 // The C# post test's effects and scene in C++ (the test program's game module): a tint by a color and a mirror with the
-// core's blit, run by the C# pipeline's passes. The core's types by name: the test program reaches the module's
-// registry, not its TypeOf.
+// core's blit, run by the C# pipeline's passes.
 namespace helix::rpcore::testing
 {
     // A tint by a color (Tests/Core/Tint): active when the color is not white.
@@ -101,10 +100,10 @@ namespace helix::rpcore::testing
             shape->AddComponent<MeshRenderer>()->SetSharedMaterial(red);
             shape->transform()->SetPosition(Vector3(-1, 0, 0));
             shape->transform()->SetLocalScale(Vector3(0.75f, 0.75f, 1));
-            auto* profile = static_cast<rendering::VolumeProfile*>(ScriptableObject::CreateInstance(scripting::FindType("HelixEngine.Rendering.VolumeProfile")));
-            static_cast<CppTintPost*>(profile->Add(scripting::FindType("CoreTests.CppTintPost")))->tint.Override(Color(0.5f, 1, 1, 1));
-            static_cast<CppMirrorPost*>(profile->Add(scripting::FindType("CoreTests.CppMirrorPost")))->mirror.Override(true);
-            volume_ = static_cast<rendering::Volume*>(GameObject::Create("PostVolume")->AddComponent(scripting::FindType("HelixEngine.Rendering.Volume")));
+            auto* profile = static_cast<rendering::VolumeProfile*>(ScriptableObject::CreateInstance(scripting::TypeOf<rendering::VolumeProfile>()));
+            profile->Add<CppTintPost>()->tint.Override(Color(0.5f, 1, 1, 1));
+            profile->Add<CppMirrorPost>()->mirror.Override(true);
+            volume_ = static_cast<rendering::Volume*>(GameObject::Create("PostVolume")->AddComponent(scripting::TypeOf<rendering::Volume>()));
             volume_->SetSharedProfile(profile);
         }
 

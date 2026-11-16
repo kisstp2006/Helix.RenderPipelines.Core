@@ -33,7 +33,7 @@ HX_TEST(Cpp, PostProcessComponentsRunInTheCSharpPipeline)
     // The C# post test's scenario with the C++ effects and scene: the same pixels, the C++ types after the listed ones.
     HX_REQUIRE(StartScripts());
     constexpr u32 size = 16;
-    scripting::TypeId sceneType = scripting::FindType("CoreTests.CppPostScene");
+    scripting::TypeId sceneType = scripting::TypeOf<CppPostScene>();
     HX_REQUIRE(sceneType.IsValid());
     u32 devices = ForEachDevice([&](rhi::Device& device) {
         ShaderFolder shaders;

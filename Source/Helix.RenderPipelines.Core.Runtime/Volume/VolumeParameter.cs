@@ -29,26 +29,105 @@ namespace HelixEngine.Rendering
             }
         }
 
-        // The wrapper of a C++ component's parameter, by its kind.
-        internal static VolumeParameter Native(ulong id)
+        // Generated fields of C++ components (the parameter members) answer these wrappers.
+        static VolumeParameter() => global::Helix.Interop.Handles.Register(typeof(VolumeParameter), (id, type) => Native(id, type));
+
+        // The C# classes of C++ parameters: the class of each native kind (a C++ component's parameter list) and how a
+        // wrapper of a class is made (a C++ component's member of that class).
+        static readonly Type[] s_KindClasses =
         {
-            VolumeParameter p = VolumesNative.Kind(id) switch
+            typeof(BoolParameter), typeof(IntParameter), typeof(FloatParameter), typeof(Vector2Parameter), typeof(Vector3Parameter),
+            typeof(Vector4Parameter), typeof(ColorParameter), typeof(LayerMaskParameter), typeof(TextureParameter),
+        };
+
+        static readonly Dictionary<Type, Func<VolumeParameter>> s_Makers = new Dictionary<Type, Func<VolumeParameter>>
+        {
+            [typeof(BoolParameter)] = () => new BoolParameter(false),
+            [typeof(LayerMaskParameter)] = () => new LayerMaskParameter(default),
+            [typeof(IntParameter)] = () => new IntParameter(0),
+            [typeof(NoInterpIntParameter)] = () => new NoInterpIntParameter(0),
+            [typeof(MinIntParameter)] = () => new MinIntParameter(0, 0),
+            [typeof(ClampedIntParameter)] = () => new ClampedIntParameter(0, 0, 0),
+            [typeof(FloatParameter)] = () => new FloatParameter(0),
+            [typeof(NoInterpFloatParameter)] = () => new NoInterpFloatParameter(0),
+            [typeof(MinFloatParameter)] = () => new MinFloatParameter(0, 0),
+            [typeof(MaxFloatParameter)] = () => new MaxFloatParameter(0, 0),
+            [typeof(ClampedFloatParameter)] = () => new ClampedFloatParameter(0, 0, 0),
+            [typeof(NoInterpClampedFloatParameter)] = () => new NoInterpClampedFloatParameter(0, 0, 0),
+            [typeof(ColorParameter)] = () => new ColorParameter(default),
+            [typeof(Vector2Parameter)] = () => new Vector2Parameter(default),
+            [typeof(NoInterpVector2Parameter)] = () => new NoInterpVector2Parameter(default),
+            [typeof(Vector3Parameter)] = () => new Vector3Parameter(default),
+            [typeof(NoInterpVector3Parameter)] = () => new NoInterpVector3Parameter(default),
+            [typeof(Vector4Parameter)] = () => new Vector4Parameter(default),
+            [typeof(NoInterpVector4Parameter)] = () => new NoInterpVector4Parameter(default),
+            [typeof(TextureParameter)] = () => new TextureParameter(null),
+        };
+
+        // One wrapper per native parameter.
+        static readonly Dictionary<ulong, VolumeParameter> s_Wrappers = new Dictionary<ulong, VolumeParameter>();
+        static int s_PruneAt = 256;
+
+        // The wrapper of a C++ component's parameter: of the class asked for, else of its kind's class.
+        internal static VolumeParameter Native(ulong id, Type type = null)
+        {
+            if (id == 0)
+                return null;
+            if (s_Wrappers.TryGetValue(id, out VolumeParameter known) && (type == null || type.IsInstanceOfType(known)))
+                return known;
+            int kind = VolumesNative.Kind(id);
+            if (kind < 0)
+                return null;
+            if (type == null || type == typeof(VolumeParameter))
+                type = kind < s_KindClasses.Length ? s_KindClasses[kind] : null;
+            if (type == null)
+                return null;
+            if (!s_Makers.TryGetValue(type, out Func<VolumeParameter> make))
             {
-                0 => new BoolParameter(false),
-                1 => new IntParameter(0),
-                2 => new FloatParameter(0),
-                3 => new Vector2Parameter(default),
-                4 => new Vector3Parameter(default),
-                5 => new Vector4Parameter(default),
-                6 => new ColorParameter(default),
-                7 => new LayerMaskParameter(default),
-                8 => new TextureParameter(null),
-                _ => null,
-            };
-            if (p != null)
-                p.m_Native = id;
+                make = MakerOf(type);
+                if (make == null)
+                    return null;
+                s_Makers[type] = make;
+            }
+            VolumeParameter p = make();
+            p.m_Native = id;
+            ParameterValue limits = VolumesNative.Limits(id);
+            if (limits.i != 0)
+                p.TakeLimits(limits.x, limits.y);
+            if (s_Wrappers.Count >= s_PruneAt)
+            {
+                var dead = new List<ulong>();
+                foreach (ulong key in s_Wrappers.Keys)
+                    if (VolumesNative.Kind(key) < 0)
+                        dead.Add(key);
+                foreach (ulong key in dead)
+                    s_Wrappers.Remove(key);
+                s_PruneAt = Math.Max(256, s_Wrappers.Count * 2);
+            }
+            s_Wrappers[id] = p;
             return p;
         }
+
+        // A parameter class without a list entry (an enum's parameter of a pipeline): made by its (value, overrideState)
+        // constructor with the type's default value.
+        static Func<VolumeParameter> MakerOf(Type type)
+        {
+            for (Type t = type; t != null && t != typeof(object); t = t.BaseType)
+            {
+                if (!t.IsGenericType || t.GetGenericTypeDefinition() != typeof(VolumeParameter<>))
+                    continue;
+                Type value = t.GetGenericArguments()[0];
+                System.Reflection.ConstructorInfo ctor = type.GetConstructor(new[] { value, typeof(bool) });
+                if (ctor == null)
+                    return null;
+                object initial = value.IsValueType ? Activator.CreateInstance(value) : null;
+                return () => (VolumeParameter)ctor.Invoke(new[] { initial, false });
+            }
+            return null;
+        }
+
+        // A wrapper's limits are its native parameter's (read when it is made).
+        internal virtual void TakeLimits(float min, float max) { }
 
         internal abstract void Interp(VolumeParameter from, VolumeParameter to, float t);
 
@@ -105,7 +184,10 @@ namespace HelixEngine.Rendering
         public void Override(T x)
         {
             overrideState = true;
-            m_Value = x;
+            if (m_Native != 0)
+                NativeValue<T>.Set(m_Native, x);
+            else
+                m_Value = x;
         }
 
         public override void SetValue(VolumeParameter parameter)
@@ -166,6 +248,8 @@ namespace HelixEngine.Rendering
                 o = new Vector4(v.x, v.y, v.z, v.w);
             else if (typeof(T) == typeof(Color))
                 o = new Color(v.x, v.y, v.z, v.w);
+            else if (typeof(T).IsEnum)
+                o = Enum.ToObject(typeof(T), v.i);
             else
                 o = VolumesNative.GetTexture(id);
             return o is T t ? t : default;
@@ -199,6 +283,9 @@ namespace HelixEngine.Rendering
                     break;
                 case Color c:
                     (v.x, v.y, v.z, v.w) = (c.r, c.g, c.b, c.a);
+                    break;
+                case Enum e:
+                    v.i = Convert.ToInt32(e);
                     break;
                 default:
                     VolumesNative.SetTexture(id, value as Texture);
@@ -365,9 +452,11 @@ namespace HelixEngine.Rendering
     [Serializable]
     public class MinIntParameter : IntParameter
     {
+        internal override void TakeLimits(float lo, float hi) { min = (int)lo; }
+
         [NonSerialized] public int min;
         public MinIntParameter(int value, int min, bool overrideState = false) : base(value, overrideState) => this.min = min;
-        public override int value { get => m_Value; set => m_Value = Mathf.Max(value, min); }
+        public override int value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Max(value, min); } }
     }
 
     [Serializable]
@@ -375,7 +464,7 @@ namespace HelixEngine.Rendering
     {
         [NonSerialized] public int min;
         public NoInterpMinIntParameter(int value, int min, bool overrideState = false) : base(value, overrideState) => this.min = min;
-        public override int value { get => m_Value; set => m_Value = Mathf.Max(value, min); }
+        public override int value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Max(value, min); } }
     }
 
     [Serializable]
@@ -383,7 +472,7 @@ namespace HelixEngine.Rendering
     {
         [NonSerialized] public int max;
         public MaxIntParameter(int value, int max, bool overrideState = false) : base(value, overrideState) => this.max = max;
-        public override int value { get => m_Value; set => m_Value = Mathf.Min(value, max); }
+        public override int value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Min(value, max); } }
     }
 
     [Serializable]
@@ -391,12 +480,14 @@ namespace HelixEngine.Rendering
     {
         [NonSerialized] public int max;
         public NoInterpMaxIntParameter(int value, int max, bool overrideState = false) : base(value, overrideState) => this.max = max;
-        public override int value { get => m_Value; set => m_Value = Mathf.Min(value, max); }
+        public override int value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Min(value, max); } }
     }
 
     [Serializable]
     public class ClampedIntParameter : IntParameter
     {
+        internal override void TakeLimits(float lo, float hi) { min = (int)lo; max = (int)hi; }
+
         [NonSerialized] public int min;
         [NonSerialized] public int max;
 
@@ -406,7 +497,7 @@ namespace HelixEngine.Rendering
             this.max = max;
         }
 
-        public override int value { get => m_Value; set => m_Value = Mathf.Clamp(value, min, max); }
+        public override int value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Clamp(value, min, max); } }
     }
 
     [Serializable]
@@ -421,7 +512,7 @@ namespace HelixEngine.Rendering
             this.max = max;
         }
 
-        public override int value { get => m_Value; set => m_Value = Mathf.Clamp(value, min, max); }
+        public override int value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Clamp(value, min, max); } }
     }
 
     [Serializable]
@@ -440,9 +531,11 @@ namespace HelixEngine.Rendering
     [Serializable]
     public class MinFloatParameter : FloatParameter
     {
+        internal override void TakeLimits(float lo, float hi) { min = lo; }
+
         [NonSerialized] public float min;
         public MinFloatParameter(float value, float min, bool overrideState = false) : base(value, overrideState) => this.min = min;
-        public override float value { get => m_Value; set => m_Value = Mathf.Max(value, min); }
+        public override float value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Max(value, min); } }
     }
 
     [Serializable]
@@ -450,15 +543,17 @@ namespace HelixEngine.Rendering
     {
         [NonSerialized] public float min;
         public NoInterpMinFloatParameter(float value, float min, bool overrideState = false) : base(value, overrideState) => this.min = min;
-        public override float value { get => m_Value; set => m_Value = Mathf.Max(value, min); }
+        public override float value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Max(value, min); } }
     }
 
     [Serializable]
     public class MaxFloatParameter : FloatParameter
     {
+        internal override void TakeLimits(float lo, float hi) { max = hi; }
+
         [NonSerialized] public float max;
         public MaxFloatParameter(float value, float max, bool overrideState = false) : base(value, overrideState) => this.max = max;
-        public override float value { get => m_Value; set => m_Value = Mathf.Min(value, max); }
+        public override float value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Min(value, max); } }
     }
 
     [Serializable]
@@ -466,12 +561,14 @@ namespace HelixEngine.Rendering
     {
         [NonSerialized] public float max;
         public NoInterpMaxFloatParameter(float value, float max, bool overrideState = false) : base(value, overrideState) => this.max = max;
-        public override float value { get => m_Value; set => m_Value = Mathf.Min(value, max); }
+        public override float value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Min(value, max); } }
     }
 
     [Serializable]
     public class ClampedFloatParameter : FloatParameter
     {
+        internal override void TakeLimits(float lo, float hi) { min = lo; max = hi; }
+
         [NonSerialized] public float min;
         [NonSerialized] public float max;
 
@@ -481,12 +578,14 @@ namespace HelixEngine.Rendering
             this.max = max;
         }
 
-        public override float value { get => m_Value; set => m_Value = Mathf.Clamp(value, min, max); }
+        public override float value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Clamp(value, min, max); } }
     }
 
     [Serializable]
     public class NoInterpClampedFloatParameter : VolumeParameter<float>
     {
+        internal override void TakeLimits(float lo, float hi) { min = lo; max = hi; }
+
         [NonSerialized] public float min;
         [NonSerialized] public float max;
 
@@ -496,7 +595,7 @@ namespace HelixEngine.Rendering
             this.max = max;
         }
 
-        public override float value { get => m_Value; set => m_Value = Mathf.Clamp(value, min, max); }
+        public override float value { get => m_Native != 0 ? base.value : m_Value; set { if (m_Native != 0) base.value = value; else m_Value = Mathf.Clamp(value, min, max); } }
     }
 
     /// <summary>A range (x min, y max) within limits.</summary>

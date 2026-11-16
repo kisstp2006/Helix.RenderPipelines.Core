@@ -40,7 +40,7 @@ set(core_bound_headers "${core_source}/Helix/RenderPipelines/Core/Textures/RTHan
     "${core_source}/Helix/RenderPipelines/Core/Volume/VolumeComponent.h" "${core_source}/Helix/RenderPipelines/Core/Volume/Volume.h"
     "${core_source}/Helix/RenderPipelines/Core/Native/VolumesNative.h" "${core_source}/Helix/RenderPipelines/Core/PostProcessing/PostProcessing.h"
     "${core_source}/Helix/RenderPipelines/Core/Native/PostNative.h" "${core_source}/Helix/RenderPipelines/Core/Debugging/DebugUI.h"
-    "${core_source}/Helix/RenderPipelines/Core/Native/DebugNative.h")
+    "${core_source}/Helix/RenderPipelines/Core/Native/DebugNative.h" "${core_source}/Helix/RenderPipelines/Core/Context/ContextContainer.h")
 set(engine_references "${engine_source}/Helix/Engine/Object/EntityId.h" "${engine_source}/Helix/Engine/Object/Object.h"
     "${engine_source}/Helix/Engine/GameObject/GameObject.h" "${engine_source}/Helix/Engine/Script/GameBehaviour.h"
     "${engine_source}/Helix/Engine/Script/ScriptableObject.h" "${engine_source}/Helix/Engine/Texture/Texture.h" "${engine_source}/Helix/Engine/Transform/Transform.h"

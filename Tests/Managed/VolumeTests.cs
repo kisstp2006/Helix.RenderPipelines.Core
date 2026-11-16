@@ -133,4 +133,36 @@ namespace Tests
             VolumeManager.instance.Deinitialize();
         }
     }
+
+    // The parameters of a C++ component as C# objects: of their declared classes, the component's own, the native
+    // limits and values.
+    public class CsCppParameters : GameBehaviour
+    {
+        void Start()
+        {
+            var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+            var c = profile.Add<CoreTests.CppTestVolume>();
+            ClampedFloatParameter intensity = c.intensity;
+            bool same = ReferenceEquals(intensity, c.intensity) && ReferenceEquals(intensity, c.parameters[0]);
+            intensity.Override(30);
+            c.tint.value = new Color(0, 0.5f, 1, 1);
+            Notes.Note($"cpp:{same}:{intensity.min}:{intensity.max}:{intensity.value}:{intensity.overrideState}:{c.tint.value.g}:{c.steps.GetType().Name}:{c.parameters.Count}");
+            // The enum parameter: its own class, the C++ default, a value set from C# read back by the parameter list's wrapper.
+            CoreTests.CppTestModeParameter mode = c.mode;
+            CoreTests.CppTestMode before = mode.value;
+            mode.Override(CoreTests.CppTestMode.Third);
+            Notes.Note($"enum:{mode.GetType().Name}:{before}:{c.parameters[5].GetValue<CoreTests.CppTestMode>()}:{mode.overrideState}");
+            DestroyImmediate(profile);
+        }
+    }
+}
+
+namespace CoreTests
+{
+    // The C# class of the C++ test components' enum parameter.
+    [System.Serializable]
+    public sealed class CppTestModeParameter : HelixEngine.Rendering.VolumeParameter<CppTestMode>
+    {
+        public CppTestModeParameter(CppTestMode value, bool overrideState = false) : base(value, overrideState) { }
+    }
 }

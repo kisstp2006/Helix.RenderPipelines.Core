@@ -5,6 +5,7 @@
 #include <Helix/Engine/GameObject/Lifecycle.h>
 #include <Helix/Engine/Rendering/Graphics.h>
 #include <Helix/Engine/Script/ScriptRuntime.h>
+#include <Helix/RenderPipelines/Core/Context/ContextContainer.h>
 #include <Helix/Testing/Test.h>
 
 using namespace helix;
@@ -303,4 +304,41 @@ HX_TEST(Pipeline, TheGoldenSceneThroughTheCoreWithAndWithoutPost)
         device.Destroy(depth);
     });
     std::printf("    %u devices\n", devices);
+}
+
+namespace
+{
+    // A C++ item of a frame (not bound: its key is its C++ name).
+    struct CppFrameData final : rendering::ContextItem
+    {
+        i32 value = 0;
+        static inline i32 resets = 0;
+        void Reset() override
+        {
+            value = 0;
+            resets++;
+        }
+    };
+}
+
+HX_TEST(Context, ContainersKeepTheItemsOfAFrame)
+{
+    // C++: an item made once per frame, reset by Dispose and reused; Get of an item not made is null with an error.
+    // C#: the same with an item of a C# class.
+    rendering::ContextContainer frame;
+    CppFrameData& a = frame.GetOrCreate<CppFrameData>();
+    a.value = 5;
+    HX_CHECK(&frame.GetOrCreate<CppFrameData>() == &a && frame.Get<CppFrameData>() == &a && frame.Contains<CppFrameData>());
+    CppFrameData::resets = 0;
+    frame.Dispose();
+    HX_CHECK(CppFrameData::resets == 1 && a.value == 0 && !frame.Contains<CppFrameData>() && frame.Get<CppFrameData>() == nullptr);
+    HX_CHECK(&frame.Create<CppFrameData>() == &a && frame.Contains<CppFrameData>());
+
+    HX_REQUIRE(StartScripts());
+    Notes().Clear();
+    GameObject* host = GameObject::Create("ContextHost");
+    host->AddComponent(CSharp("CsContextTests").type);
+    RunScriptPhase(ScriptMessage::Update);
+    HX_CHECK(SameNotes({"context:True:True:True:True:True"}));
+    DestroyImmediate(host);
 }

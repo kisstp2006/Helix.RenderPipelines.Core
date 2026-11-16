@@ -23,6 +23,9 @@ namespace HelixEngine.Rendering.RenderGraphModule
 
         readonly string m_Name;
         ulong m_Id;
+        // A graph native code made, records and executes (a C++ pipeline's): C# passes record into its frames.
+        readonly bool m_Borrowed;
+        static readonly Dictionary<ulong, RenderGraph> s_Borrowed = new Dictionary<ulong, RenderGraph>();
         bool m_NativeRenderPasses;
         RenderGraphParameters m_Parameters;
         bool m_Recording;
@@ -40,6 +43,62 @@ namespace HelixEngine.Rendering.RenderGraphModule
         {
             m_Name = name;
             defaultResources = new RenderGraphDefaultResources();
+        }
+
+        RenderGraph(ulong borrowed)
+        {
+            m_Id = borrowed;
+            m_Borrowed = true;
+            m_Name = GraphNative.Name(borrowed);
+            m_NativeRenderPasses = GraphNative.NativeRenderPasses(borrowed);
+            m_Execution = -1;
+            defaultResources = new RenderGraphDefaultResources();
+        }
+
+        // The C# graph over a native one (0: null).
+        internal static RenderGraph Borrow(ulong graph)
+        {
+            if (graph == 0)
+                return null;
+            if (!s_Borrowed.TryGetValue(graph, out RenderGraph g))
+                s_Borrowed[graph] = g = new RenderGraph(graph);
+            g.Sync();
+            return g;
+        }
+
+        // A borrowed graph's state at the native frame: a new frame frees the render functions of the last one (it ran)
+        // and takes the frame's command buffer and default textures.
+        void Sync()
+        {
+            if (!m_Borrowed)
+                return;
+            m_Recording = GraphNative.Recording(m_Id);
+            int execution = (int)GraphNative.Execution(m_Id);
+            if (execution == m_Execution)
+                return;
+            m_Execution = execution;
+            foreach (GCHandle h in m_FrameHandles)
+                h.Free();
+            m_FrameHandles.Clear();
+            m_ScaleFuncs.Clear();
+            m_OpenBuilder = null;
+            CommandBuffer cmd = global::Helix.Interop.RenderingInterop.Borrow(GraphNative.CommandBufferOf(m_Id));
+            ulong context = GraphNative.ContextOf(m_Id);
+            m_Parameters = new RenderGraphParameters { commandBuffer = cmd, scriptableRenderContext = context != 0 ? global::Helix.Interop.RenderingInterop.ContextOf(context) : default };
+            m_RasterCommands = cmd != null ? new RasterCommandBuffer(cmd) : null;
+            m_ComputeCommands = cmd != null ? new ComputeCommandBuffer(cmd) : null;
+            m_UnsafeCommands = cmd != null ? new UnsafeCommandBuffer(cmd) : null;
+            if (m_Recording)
+                defaultResources.Import(this);
+        }
+
+        // The graph executing a frame on this thread: a C# one, else the C# graph over the native one.
+        internal static RenderGraph executing => s_Executing ?? Borrow(GraphNative.ExecutingGraph());
+
+        void CheckOwned(string what)
+        {
+            if (m_Borrowed)
+                throw new InvalidOperationException($"RenderGraph.{what}: native code records, executes and cleans up this graph.");
         }
 
         public string name => m_Name;
@@ -98,13 +157,14 @@ namespace HelixEngine.Rendering.RenderGraphModule
 
         public void BeginRecording(in RenderGraphParameters parameters)
         {
+            CheckOwned(nameof(BeginRecording));
             if (m_Recording)
                 throw new InvalidOperationException("RenderGraph.BeginRecording: the graph is already recording; call EndRecordingAndExecute first.");
             if (parameters.commandBuffer == null)
                 throw new ArgumentException("RenderGraphParameters.commandBuffer is null.");
             m_Parameters = parameters;
-            ulong context = parameters.scriptableRenderContext != default ? parameters.scriptableRenderContext.id : 0;
-            Throw(GraphNative.BeginRecording(id, context, parameters.commandBuffer.Id, parameters.currentFrameIndex, parameters.rendererListCulling,
+            ulong context = parameters.scriptableRenderContext != default ? global::Helix.Interop.RenderingInterop.IdOf(parameters.scriptableRenderContext) : 0;
+            Throw(GraphNative.BeginRecording(id, context, global::Helix.Interop.RenderingInterop.IdOf(parameters.commandBuffer), parameters.currentFrameIndex, parameters.rendererListCulling,
                                              parameters.executionName ?? ""), GraphNative.Error(id));
             m_Recording = true;
             m_Execution = (int)GraphNative.Execution(id);
@@ -116,6 +176,7 @@ namespace HelixEngine.Rendering.RenderGraphModule
 
         public void EndRecordingAndExecute()
         {
+            CheckOwned(nameof(EndRecordingAndExecute));
             if (!m_Recording)
                 throw new InvalidOperationException("RenderGraph.EndRecordingAndExecute: BeginRecording was not called.");
             if (m_OpenBuilder != null)
@@ -146,6 +207,7 @@ namespace HelixEngine.Rendering.RenderGraphModule
 
         internal void CheckRecording(string what)
         {
+            Sync();
             if (!m_Recording)
                 throw new InvalidOperationException($"RenderGraph.{what}: the graph is not recording (call BeginRecording first).");
         }
@@ -213,7 +275,25 @@ namespace HelixEngine.Rendering.RenderGraphModule
             CheckRecording(nameof(CreateRendererList));
             ScriptableRenderContext context = m_Parameters.scriptableRenderContext;
             RendererList list = context != default && desc.IsValid() ? context.CreateRendererList(desc) : RendererList.nullRendererList;
-            return RendererListHandle.Unpack(GraphNative.ImportRendererList(id, list.m_Id));
+            return RendererListHandle.Unpack(GraphNative.ImportRendererList(id, global::Helix.Interop.RenderingInterop.IdOf(list)));
+        }
+
+        /// <summary>The skybox of RenderSettings around the camera (an empty list without one).</summary>
+        public RendererListHandle CreateSkyboxRendererList(in Camera camera)
+        {
+            CheckRecording(nameof(CreateSkyboxRendererList));
+            ScriptableRenderContext context = m_Parameters.scriptableRenderContext;
+            RendererList list = context != default && camera != null ? context.CreateSkyboxRendererList(camera) : RendererList.nullRendererList;
+            return RendererListHandle.Unpack(GraphNative.ImportRendererList(id, global::Helix.Interop.RenderingInterop.IdOf(list)));
+        }
+
+        /// <summary>The shadow casters of a visible light's split (an empty list before CullShadowCasters).</summary>
+        public RendererListHandle CreateShadowRendererList(ref ShadowDrawingSettings shadowDrawingSettings)
+        {
+            CheckRecording(nameof(CreateShadowRendererList));
+            ScriptableRenderContext context = m_Parameters.scriptableRenderContext;
+            RendererList list = context != default ? context.CreateShadowRendererList(ref shadowDrawingSettings) : RendererList.nullRendererList;
+            return RendererListHandle.Unpack(GraphNative.ImportRendererList(id, global::Helix.Interop.RenderingInterop.IdOf(list)));
         }
 
         public RendererListHandle CreateRendererList(in RendererListParams desc)
@@ -222,7 +302,7 @@ namespace HelixEngine.Rendering.RenderGraphModule
             ScriptableRenderContext context = m_Parameters.scriptableRenderContext;
             RendererListParams p = desc;
             RendererList list = context != default ? context.CreateRendererList(ref p) : RendererList.nullRendererList;
-            return RendererListHandle.Unpack(GraphNative.ImportRendererList(id, list.m_Id));
+            return RendererListHandle.Unpack(GraphNative.ImportRendererList(id, global::Helix.Interop.RenderingInterop.IdOf(list)));
         }
 
         public IRasterRenderGraphBuilder AddRasterRenderPass<PassData>(string passName, out PassData passData) where PassData : class, new() =>
@@ -255,12 +335,14 @@ namespace HelixEngine.Rendering.RenderGraphModule
         /// <summary>Pooled textures unused for some frames are released.</summary>
         public void EndFrame()
         {
+            CheckOwned(nameof(EndFrame));
             if (m_Id != 0)
                 GraphNative.EndFrame(m_Id);
         }
 
         public void Cleanup()
         {
+            CheckOwned(nameof(Cleanup));
             if (m_Id == 0)
                 return;
             GraphNative.Destroy(m_Id);
@@ -279,7 +361,11 @@ namespace HelixEngine.Rendering.RenderGraphModule
             }
             catch (Exception e)
             {
-                s_Failure ??= e;
+                // A frame C# executes throws the first one after it; a frame native code executes logs them.
+                if (s_Executing != null)
+                    s_Failure ??= e;
+                else
+                    Debug.LogException(e);
             }
         }
 
@@ -299,7 +385,7 @@ namespace HelixEngine.Rendering.RenderGraphModule
         {
             if (!GraphNative.Executing((uint)handle.m_Graph))
                 throw new InvalidOperationException("A render graph renderer list can only be read in the render function of a pass of its frame.");
-            return new RendererList(GraphNative.ResolveList(handle.packed));
+            return global::Helix.Interop.RenderingInterop.RendererListOf(GraphNative.ResolveList(handle.packed));
         }
     }
 }

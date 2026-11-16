@@ -44,6 +44,14 @@ namespace helix::rendering
         HX_FUNCTION() static i32 BeginRecording(u64 graph, u64 context, u64 buffer, i32 frameIndex, bool rendererListCulling, StringView executionName);
         HX_FUNCTION() static i32 EndRecordingAndExecute(u64 graph);
         HX_FUNCTION() static u32 Execution(u64 graph);
+        // A graph native code records (a C++ pipeline's): its name, whether it records, its frame's command buffer and context, and
+        // the graph executing on this thread (0: none).
+        HX_FUNCTION() static String Name(u64 graph);
+        HX_FUNCTION() static bool Recording(u64 graph);
+        HX_FUNCTION() static u64 CommandBufferOf(u64 graph);
+        // The context of its frame (0: none).
+        HX_FUNCTION() static u64 ContextOf(u64 graph);
+        HX_FUNCTION() static u64 ExecutingGraph();
         HX_FUNCTION() static u64 DefaultTexture(u64 graph, i32 which);
 
         HX_FUNCTION() static u64 ImportTexture(u64 graph, u64 handle, bool clearOnFirstUse, Color clearColor, bool discardOnLastUse);
