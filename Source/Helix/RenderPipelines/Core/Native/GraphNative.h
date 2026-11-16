@@ -30,6 +30,16 @@ namespace helix::rendering
         HX_FIELD() Color clearColor = Color(0, 0, 0, 1);
     };
 
+    // A BufferDesc as plain values.
+    HX_STRUCT(Namespace = "HelixEngine.Rendering.Internal", Internal)
+    struct BufferDescData
+    {
+        HX_FIELD() i32 count = 1;
+        HX_FIELD() i32 stride = 4;
+        HX_FIELD() i32 target = 16;
+        HX_FIELD() i32 usageFlags = 0;
+    };
+
     HX_CLASS(Namespace = "HelixEngine.Rendering.Internal", Static, Internal)
     class GraphNative
     {
@@ -64,12 +74,19 @@ namespace helix::rendering
         // The handle an imported texture came from (0 for the graph's own).
         HX_FUNCTION() static u64 ImportedHandle(u64 graph, u64 texture);
         HX_FUNCTION() static u64 ImportRendererList(u64 graph, u64 list);
+        // Buffers: an engine buffer by its id, or one the graph makes.
+        HX_FUNCTION() static u64 ImportBuffer(u64 graph, u64 buffer);
+        HX_FUNCTION() static u64 CreateBuffer(u64 graph, BufferDescData desc, StringView name);
+        HX_FUNCTION() static BufferDescData GetBufferDesc(u64 graph, u64 buffer);
+        HX_FUNCTION() static String BufferName(u64 graph, u64 buffer);
 
         // A pass: its builder until DisposeBuilder (which answers the error of a pass without a render function).
         HX_FUNCTION() static u64 AddPass(u64 graph, StringView name, i32 kind);
         HX_FUNCTION() static i32 DisposeBuilder(u64 builder);
         HX_FUNCTION() static String BuilderError(u64 builder);
         HX_FUNCTION() static i32 UseTexture(u64 builder, u64 texture, i32 flags);
+        HX_FUNCTION() static i32 UseBuffer(u64 builder, u64 buffer, i32 flags);
+        HX_FUNCTION() static u64 CreateTransientBuffer(u64 builder, BufferDescData desc, StringView name);
         HX_FUNCTION() static void UseGlobalTexture(u64 builder, i32 propertyId, i32 flags);
         HX_FUNCTION() static void UseAllGlobalTextures(u64 builder, bool enable);
         HX_FUNCTION() static i32 UseRendererList(u64 builder, u64 list);
@@ -91,6 +108,17 @@ namespace helix::rendering
         HX_FUNCTION() static bool Executing(u32 execution);
         HX_FUNCTION() static u64 Resolve(u64 texture);
         HX_FUNCTION() static u64 ResolveList(u64 list);
+        // The engine buffer id of a buffer handle (0: not executing or not allocated).
+        HX_FUNCTION() static u64 ResolveBuffer(u64 buffer);
+        static u64 Pack(BufferHandle h) { return u64(h.execution) << 32 | h.index; }
+        static BufferHandle UnpackBuffer(u64 v) { return {u32(v), u32(v >> 32)}; }
+        static BufferDesc BufferDescOf(const BufferDescData& d, StringView name)
+        {
+            BufferDesc desc(d.count, d.stride, engine::GraphicsBufferTarget(d.target));
+            desc.usageFlags = d.usageFlags;
+            desc.name = String(name);
+            return desc;
+        }
 
         static u64 Pack(TextureHandle h) { return u64(h.execution) << 32 | h.index; }
         static TextureHandle Unpack(u64 v) { return {u32(v), u32(v >> 32)}; }

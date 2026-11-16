@@ -2,6 +2,7 @@
 
 #include <Helix/Core/Containers/Array.h>
 #include <Helix/Core/Strings/String.h>
+#include <Helix/Engine/Rendering/GraphicsBuffer.h>
 #include <Helix/Engine/Rendering/Pipeline/CommandBuffer.h>
 #include <Helix/Engine/Rendering/Pipeline/RendererList.h>
 #include <Helix/Engine/Rendering/Pipeline/ScriptableRenderContext.h>
@@ -10,9 +11,9 @@
 #include <type_traits>
 #include <utility>
 
-// A frame's passes recorded with the textures and renderer lists they use, then compiled and executed: passes whose
-// results nothing uses are culled, the textures the graph makes live from their first use to their last and share
-// pooled textures of the same kind, consecutive raster passes with the same attachments run as one render pass, and
+// A frame's passes recorded with the textures, buffers and renderer lists they use, then compiled and executed: passes
+// whose results nothing uses are culled, the textures and buffers the graph makes live from their first use to their
+// last and share pooled ones of the same kind, consecutive raster passes with the same attachments run as one render pass, and
 // every pass records into the frame's command buffer.
 namespace helix::rendering
 {
@@ -49,6 +50,29 @@ namespace helix::rendering
         bool IsValid() const { return index != 0; }
         bool operator==(const TextureHandle&) const = default;
         static TextureHandle nullHandle() { return {}; }
+    };
+
+    // A graphics buffer of a frame of a graph.
+    struct BufferHandle
+    {
+        u32 index = 0;
+        u32 execution = 0;
+        bool IsValid() const { return index != 0; }
+        bool operator==(const BufferHandle&) const = default;
+        static BufferHandle nullHandle() { return {}; }
+    };
+
+    // A buffer the graph makes: count elements of stride bytes for a target.
+    struct BufferDesc
+    {
+        i32 count = 1, stride = 4;
+        engine::GraphicsBufferTarget target = engine::GraphicsBufferTarget::Structured;
+        i32 usageFlags = 0;
+        String name = String();
+
+        BufferDesc() = default;
+        BufferDesc(i32 c, i32 s) : count(c), stride(s) {}
+        BufferDesc(i32 c, i32 s, engine::GraphicsBufferTarget t) : count(c), stride(s), target(t) {}
     };
 
     struct RendererListHandle
@@ -135,6 +159,9 @@ namespace helix::rendering
         HX_FIELD() i32 pooledTexturesCreated = 0;
         HX_FIELD() i32 aliasedTextures = 0;
         HX_FIELD() i32 pooledTextures = 0;
+        HX_FIELD() i32 buffers = 0;
+        HX_FIELD() i32 pooledBuffersCreated = 0;
+        HX_FIELD() i32 pooledBuffers = 0;
     };
 
     class RenderGraph;
@@ -239,6 +266,10 @@ namespace helix::rendering
         void Dispose();
 
         void UseTexture(TextureHandle texture, AccessFlags flags = AccessFlags::Read);
+        void UseBuffer(BufferHandle buffer, AccessFlags flags = AccessFlags::Read);
+        // A buffer of this pass only.
+        BufferHandle CreateTransientBuffer(const BufferDesc& desc);
+        BufferHandle CreateTransientBuffer(BufferHandle buffer);
         void UseGlobalTexture(i32 propertyId, AccessFlags flags = AccessFlags::Read);
         void UseAllGlobalTextures(bool enable);
         void UseRendererList(RendererListHandle list);
@@ -324,6 +355,11 @@ namespace helix::rendering
         TextureHandle CreateTexture(const TextureDesc& desc);
         TextureHandle CreateTexture(TextureHandle texture) { return CreateTexture(GetTextureDesc(texture)); }
         const TextureDesc& GetTextureDesc(TextureHandle texture) const;
+        // A buffer kept by the caller (it outlives the frame), or one the graph makes for the passes that use it.
+        BufferHandle ImportBuffer(engine::GraphicsBuffer* buffer);
+        BufferHandle CreateBuffer(const BufferDesc& desc);
+        BufferHandle CreateBuffer(BufferHandle buffer) { return CreateBuffer(GetBufferDesc(buffer)); }
+        const BufferDesc& GetBufferDesc(BufferHandle buffer) const;
         RendererListHandle CreateRendererList(const engine::RendererUtils::RendererListDesc& desc);
         RendererListHandle CreateRendererList(const engine::RendererListParams& desc);
         // The skybox of RenderSettings around the camera (an empty list without one).
@@ -348,6 +384,7 @@ namespace helix::rendering
 
         // While executing: the texture of a handle and the list of a handle (null when not executing or not allocated).
         RTHandle* Resolve(TextureHandle texture) const;
+        engine::GraphicsBuffer* Resolve(BufferHandle buffer) const;
         engine::RendererUtils::RendererList ResolveList(RendererListHandle list) const;
         bool executing() const { return executing_; }
         // The graph executing on this thread (null outside EndRecordingAndExecute).
@@ -371,6 +408,7 @@ namespace helix::rendering
         u32 BeginPass(StringView name, PassKind kind);
         void KeepData(void* data, void (*destroy)(void*));
         u32 CheckTexture(TextureHandle texture);
+        u32 CheckBuffer(BufferHandle buffer);
         void ImportDefaults();
         void SetError(ErrorKind kind, String message)
         {

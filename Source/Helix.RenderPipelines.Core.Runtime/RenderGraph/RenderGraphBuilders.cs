@@ -25,7 +25,7 @@ namespace HelixEngine.Rendering.RenderGraphModule
     }
 
     /// <summary>What every kind of pass declares: the textures and renderer lists it uses, culling, globals; disposed when the pass is recorded.</summary>
-    public interface IBaseRenderGraphBuilder : IDisposable
+    public partial interface IBaseRenderGraphBuilder : IDisposable
     {
         void UseTexture(in TextureHandle input, AccessFlags flags = AccessFlags.Read);
         void UseGlobalTexture(int propertyId, AccessFlags flags = AccessFlags.Read);
@@ -73,7 +73,7 @@ namespace HelixEngine.Rendering.RenderGraphModule
     }
 
     // The builder of every kind of pass: the native core's builder until it is disposed.
-    internal sealed unsafe class RenderGraphBuilder : IRasterRenderGraphBuilder, IComputeRenderGraphBuilder, IUnsafeRenderGraphBuilder
+    internal sealed unsafe partial class RenderGraphBuilder : IRasterRenderGraphBuilder, IComputeRenderGraphBuilder, IUnsafeRenderGraphBuilder
     {
         readonly RenderGraph m_Graph;
         readonly object m_Data;

@@ -20,7 +20,8 @@ whose data lives in C++ is a property of the same name and type (`Volume.weight`
 
 | Path | Content |
 |---|---|
-| `Source/Helix/RenderPipelines/Core/RenderGraph/` | `RenderGraph` (`BeginRecording`, `ImportTexture`, `ImportBackbuffer`, `CreateTexture`, `CreateRendererList`, `AddRasterRenderPass`, `AddComputePass`, `AddUnsafePass`, `EndRecordingAndExecute`, `EndFrame`, `Cleanup`), the pass builders, `TextureHandle`, `RendererListHandle`, `TextureDesc`, `RenderGraphParameters`, the graph contexts |
+| `Source/Helix/RenderPipelines/Core/RenderGraph/` | `RenderGraph` (`BeginRecording`, `ImportTexture`, `ImportBackbuffer`, `CreateTexture`, `ImportBuffer`, `CreateBuffer`, `CreateRendererList`, `AddRasterRenderPass`, `AddComputePass`, `AddUnsafePass`, `EndRecordingAndExecute`, `EndFrame`, `Cleanup`), the pass builders (`UseBuffer`, `CreateTransientBuffer`), `TextureHandle`, `BufferHandle`, `RendererListHandle`, `TextureDesc`, `BufferDesc`, `RenderGraphParameters`, the graph contexts |
+| `Source/Helix/RenderPipelines/Core/Shadows/` | `CascadedShadows`, `CascadedShadowSettings`, `ShadowSliceData`: a directional light's cascades in one atlas (splits, slices, matrices, the shader values) recorded into a command buffer, shared by the pipelines |
 | `Source/Helix/RenderPipelines/Core/Textures/` | `RTHandle`, `RTHandleSystem` (handles scaled from the reference size, grown when it grows, reset), `RTHandles` (the shared system), `RTHandleProperties` |
 | `Source/Helix/RenderPipelines/Core/Utilities/` | `Blitter` (textures, handles, quads, color and depth into the bound target or a handle), `CoreUtils` (targets set and cleared with the viewport of a handle, engine materials, keywords, full screen draws, target names) |
 | `Source/Helix/RenderPipelines/Core/Volume/` | `Volume` (global, or local by blend distance), `VolumeProfile`, `VolumeComponent`, `VolumeParameter` and the typed parameters (bool, int, float, clamped, min, max, range, color, vectors, layer masks, textures, enums; their no interpolation kinds), `VolumeManager` (layers, priorities, default profiles, stacks), `VolumeStack` |
@@ -28,7 +29,7 @@ whose data lives in C++ is a property of the same name and type (`Volume.weight`
 | `Source/Helix/RenderPipelines/Core/Debugging/` | `DebugUI` (panels, containers, foldouts, values, bool, int, uint, float, enum, color and vector fields, buttons), `DebugManager` (panels, data blocks, reset), `DebugUITextView` (the panels as text) |
 | `Source/Helix/RenderPipelines/Core/Native/` | The internal functions the C# side calls (objects by id, callbacks of C# parameters, effects and widgets) |
 | `Source/Helix.RenderPipelines.Core.Runtime/` | The C# side: the generated bindings and the C# written by hand over them (the render graph's C# builders and command buffers, `RTHandle`, the volume parameters, `IPostProcessComponent`, the debug display's C# widgets, `ObservableList<T>`) |
-| `ShaderLibrary/` | C# shader code for the pipelines' shaders: `SpaceTransforms`, `Instancing`, `Common`, `Color`, `Packing`, `Sampling` (full screen triangles and quads from the vertex id, for the bound target), `ColorGrading` (LogC, the fast sRGB curves, the neutral tonemapper, strip look up tables), `ACES` (the ACES tonemapper), `Filtering` (bicubic sampling from four bilinear taps) |
+| `ShaderLibrary/` | C# shader code for the pipelines' shaders: `SpaceTransforms`, `Instancing`, `Common`, `Color`, `Packing`, `Sampling` (full screen triangles and quads from the vertex id, for the bound target), `ColorGrading` (LogC, the fast sRGB curves, the neutral tonemapper, strip look up tables), `ACES` (the ACES tonemapper), `Filtering` (bicubic sampling from four bilinear taps), `Shadows` (the shadow caster values and the cascades' atlas, matrices and soft sampling) |
 | `Shaders/` | The core's shaders: `Hidden/Core/Blit` (nearest and bilinear, full screen and quads) and `Hidden/Core/BlitColorAndDepth` |
 | `Tests/` | Tests in both languages run in the engine by a C++ test program on every device (each D3D11 adapter, OpenGL; WebGL 2 on the Web): a C# and a C++ pipeline on the render graph drawing the engine's golden scene with and without a volume's post effect, culling, merging and aliasing counted, volumes, post effects of both languages, handles, blits, the debug display read and changed across the languages; `Tests/Shaders/` calls the whole shader library; `Tests/Api/Helix.RenderPipelines.Core.csv` is the inventory of the public C# surface |
 
@@ -92,6 +93,8 @@ graph.EndRecordingAndExecute();
   texture set with `SetGlobalTextureAfterPass` keeps its pass when a later pass declares `UseGlobalTexture`.
 - Textures the graph makes live from their first use to their last and share pooled textures of the same kind; the
   pool releases kinds unused for ten frames (`EndFrame`).
+- Graph buffers are graphics buffers: imported, or created by the graph from a pool by description and kept while a
+  pass uses them. Compute passes set kernel values, textures and buffers and dispatch through `ComputeCommandBuffer`.
 - With `nativeRenderPassesEnabled` consecutive raster passes with the same attachments run as subpasses of one native
   render pass; without it they share one target bind.
 - A handle made with a scale or a scale function is reallocated when the reference size grows past the largest so

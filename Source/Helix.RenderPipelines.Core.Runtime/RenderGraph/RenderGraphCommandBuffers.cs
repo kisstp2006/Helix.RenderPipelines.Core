@@ -29,6 +29,10 @@ namespace HelixEngine.Rendering
         public void SetGlobalMatrixArray(int nameID, Matrix4x4[] values) => m_WrappedCommandBuffer.SetGlobalMatrixArray(nameID, values);
         public void SetGlobalTexture(int nameID, RenderTargetIdentifier value) => m_WrappedCommandBuffer.SetGlobalTexture(nameID, value);
         public void SetGlobalTexture(string name, RenderTargetIdentifier value) => m_WrappedCommandBuffer.SetGlobalTexture(name, value);
+        public void SetGlobalBuffer(int nameID, GraphicsBuffer value) => m_WrappedCommandBuffer.SetGlobalBuffer(nameID, value);
+        public void SetGlobalBuffer(string name, GraphicsBuffer value) => m_WrappedCommandBuffer.SetGlobalBuffer(name, value);
+        public void SetGlobalBuffer(int nameID, ComputeBuffer value) => m_WrappedCommandBuffer.SetGlobalBuffer(nameID, value);
+        public void SetGlobalBuffer(string name, ComputeBuffer value) => m_WrappedCommandBuffer.SetGlobalBuffer(name, value);
 
         public void EnableShaderKeyword(string keyword) => m_WrappedCommandBuffer.EnableShaderKeyword(keyword);
         public void DisableShaderKeyword(string keyword) => m_WrappedCommandBuffer.DisableShaderKeyword(keyword);
@@ -70,16 +74,100 @@ namespace HelixEngine.Rendering
         public void SetInvertCulling(bool invertCulling) => m_WrappedCommandBuffer.SetInvertCulling(invertCulling);
     }
 
-    /// <summary>The commands of a compute pass (the engine's compute members come with GraphicsBuffer).</summary>
+    /// <summary>The commands of a compute pass: values, textures and buffers of compute shaders, dispatches.</summary>
     public class ComputeCommandBuffer : BaseCommandBuffer
     {
         internal ComputeCommandBuffer(CommandBuffer wrapped) : base(wrapped) { }
+
+        public void SetComputeFloatParam(ComputeShader cs, int nameID, float val) => m_WrappedCommandBuffer.SetComputeFloatParam(cs, nameID, val);
+        public void SetComputeFloatParam(ComputeShader cs, string name, float val) => m_WrappedCommandBuffer.SetComputeFloatParam(cs, name, val);
+        public void SetComputeIntParam(ComputeShader cs, int nameID, int val) => m_WrappedCommandBuffer.SetComputeIntParam(cs, nameID, val);
+        public void SetComputeIntParam(ComputeShader cs, string name, int val) => m_WrappedCommandBuffer.SetComputeIntParam(cs, name, val);
+        public void SetComputeVectorParam(ComputeShader cs, int nameID, Vector4 val) => m_WrappedCommandBuffer.SetComputeVectorParam(cs, nameID, val);
+        public void SetComputeVectorParam(ComputeShader cs, string name, Vector4 val) => m_WrappedCommandBuffer.SetComputeVectorParam(cs, name, val);
+        public void SetComputeMatrixParam(ComputeShader cs, int nameID, Matrix4x4 val) => m_WrappedCommandBuffer.SetComputeMatrixParam(cs, nameID, val);
+        public void SetComputeMatrixParam(ComputeShader cs, string name, Matrix4x4 val) => m_WrappedCommandBuffer.SetComputeMatrixParam(cs, name, val);
+        public void SetComputeFloatParams(ComputeShader cs, int nameID, params float[] values) => m_WrappedCommandBuffer.SetComputeFloatParams(cs, nameID, values);
+        public void SetComputeFloatParams(ComputeShader cs, string name, params float[] values) => m_WrappedCommandBuffer.SetComputeFloatParams(cs, name, values);
+        public void SetComputeIntParams(ComputeShader cs, int nameID, params int[] values) => m_WrappedCommandBuffer.SetComputeIntParams(cs, nameID, values);
+        public void SetComputeIntParams(ComputeShader cs, string name, params int[] values) => m_WrappedCommandBuffer.SetComputeIntParams(cs, name, values);
+        public void SetComputeVectorArrayParam(ComputeShader cs, int nameID, Vector4[] values) => m_WrappedCommandBuffer.SetComputeVectorArrayParam(cs, nameID, values);
+        public void SetComputeMatrixArrayParam(ComputeShader cs, int nameID, Matrix4x4[] values) => m_WrappedCommandBuffer.SetComputeMatrixArrayParam(cs, nameID, values);
+        public void SetComputeTextureParam(ComputeShader cs, int kernelIndex, int nameID, RenderTargetIdentifier rt) =>
+            m_WrappedCommandBuffer.SetComputeTextureParam(cs, kernelIndex, nameID, rt);
+        public void SetComputeTextureParam(ComputeShader cs, int kernelIndex, string name, RenderTargetIdentifier rt) =>
+            m_WrappedCommandBuffer.SetComputeTextureParam(cs, kernelIndex, name, rt);
+        public void SetComputeTextureParam(ComputeShader cs, int kernelIndex, int nameID, RenderTargetIdentifier rt, int mipLevel) =>
+            m_WrappedCommandBuffer.SetComputeTextureParam(cs, kernelIndex, nameID, rt, mipLevel);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, int nameID, ComputeBuffer buffer) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, nameID, buffer);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, string name, ComputeBuffer buffer) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, name, buffer);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, int nameID, GraphicsBuffer buffer) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, nameID, buffer);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, string name, GraphicsBuffer buffer) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, name, buffer);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, int nameID, GraphicsBufferHandle bufferHandle) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, nameID, bufferHandle);
+        public void DispatchCompute(ComputeShader cs, int kernelIndex, int threadGroupsX, int threadGroupsY, int threadGroupsZ) =>
+            m_WrappedCommandBuffer.DispatchCompute(cs, kernelIndex, threadGroupsX, threadGroupsY, threadGroupsZ);
+        public void DispatchCompute(ComputeShader cs, int kernelIndex, ComputeBuffer indirectBuffer, uint argsOffset) =>
+            m_WrappedCommandBuffer.DispatchCompute(cs, kernelIndex, indirectBuffer, argsOffset);
+        public void DispatchCompute(ComputeShader cs, int kernelIndex, GraphicsBuffer indirectBuffer, uint argsOffset) =>
+            m_WrappedCommandBuffer.DispatchCompute(cs, kernelIndex, indirectBuffer, argsOffset);
+        public void EnableKeyword(ComputeShader cs, in LocalKeyword keyword) => m_WrappedCommandBuffer.EnableKeyword(cs, keyword);
+        public void DisableKeyword(ComputeShader cs, in LocalKeyword keyword) => m_WrappedCommandBuffer.DisableKeyword(cs, keyword);
+        public void SetKeyword(ComputeShader cs, in LocalKeyword keyword, bool value) => m_WrappedCommandBuffer.SetKeyword(cs, keyword, value);
+        public void SetBufferData(GraphicsBuffer buffer, System.Array data) => m_WrappedCommandBuffer.SetBufferData(buffer, data);
+        public void SetBufferData(ComputeBuffer buffer, System.Array data) => m_WrappedCommandBuffer.SetBufferData(buffer, data);
     }
 
     /// <summary>Every command, for passes the graph cannot reason about (targets set by the pass itself).</summary>
     public class UnsafeCommandBuffer : RasterCommandBuffer
     {
         internal UnsafeCommandBuffer(CommandBuffer wrapped) : base(wrapped) { }
+
+        public void SetComputeFloatParam(ComputeShader cs, int nameID, float val) => m_WrappedCommandBuffer.SetComputeFloatParam(cs, nameID, val);
+        public void SetComputeFloatParam(ComputeShader cs, string name, float val) => m_WrappedCommandBuffer.SetComputeFloatParam(cs, name, val);
+        public void SetComputeIntParam(ComputeShader cs, int nameID, int val) => m_WrappedCommandBuffer.SetComputeIntParam(cs, nameID, val);
+        public void SetComputeIntParam(ComputeShader cs, string name, int val) => m_WrappedCommandBuffer.SetComputeIntParam(cs, name, val);
+        public void SetComputeVectorParam(ComputeShader cs, int nameID, Vector4 val) => m_WrappedCommandBuffer.SetComputeVectorParam(cs, nameID, val);
+        public void SetComputeVectorParam(ComputeShader cs, string name, Vector4 val) => m_WrappedCommandBuffer.SetComputeVectorParam(cs, name, val);
+        public void SetComputeMatrixParam(ComputeShader cs, int nameID, Matrix4x4 val) => m_WrappedCommandBuffer.SetComputeMatrixParam(cs, nameID, val);
+        public void SetComputeMatrixParam(ComputeShader cs, string name, Matrix4x4 val) => m_WrappedCommandBuffer.SetComputeMatrixParam(cs, name, val);
+        public void SetComputeFloatParams(ComputeShader cs, int nameID, params float[] values) => m_WrappedCommandBuffer.SetComputeFloatParams(cs, nameID, values);
+        public void SetComputeFloatParams(ComputeShader cs, string name, params float[] values) => m_WrappedCommandBuffer.SetComputeFloatParams(cs, name, values);
+        public void SetComputeIntParams(ComputeShader cs, int nameID, params int[] values) => m_WrappedCommandBuffer.SetComputeIntParams(cs, nameID, values);
+        public void SetComputeIntParams(ComputeShader cs, string name, params int[] values) => m_WrappedCommandBuffer.SetComputeIntParams(cs, name, values);
+        public void SetComputeVectorArrayParam(ComputeShader cs, int nameID, Vector4[] values) => m_WrappedCommandBuffer.SetComputeVectorArrayParam(cs, nameID, values);
+        public void SetComputeMatrixArrayParam(ComputeShader cs, int nameID, Matrix4x4[] values) => m_WrappedCommandBuffer.SetComputeMatrixArrayParam(cs, nameID, values);
+        public void SetComputeTextureParam(ComputeShader cs, int kernelIndex, int nameID, RenderTargetIdentifier rt) =>
+            m_WrappedCommandBuffer.SetComputeTextureParam(cs, kernelIndex, nameID, rt);
+        public void SetComputeTextureParam(ComputeShader cs, int kernelIndex, string name, RenderTargetIdentifier rt) =>
+            m_WrappedCommandBuffer.SetComputeTextureParam(cs, kernelIndex, name, rt);
+        public void SetComputeTextureParam(ComputeShader cs, int kernelIndex, int nameID, RenderTargetIdentifier rt, int mipLevel) =>
+            m_WrappedCommandBuffer.SetComputeTextureParam(cs, kernelIndex, nameID, rt, mipLevel);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, int nameID, ComputeBuffer buffer) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, nameID, buffer);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, string name, ComputeBuffer buffer) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, name, buffer);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, int nameID, GraphicsBuffer buffer) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, nameID, buffer);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, string name, GraphicsBuffer buffer) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, name, buffer);
+        public void SetComputeBufferParam(ComputeShader cs, int kernelIndex, int nameID, GraphicsBufferHandle bufferHandle) =>
+            m_WrappedCommandBuffer.SetComputeBufferParam(cs, kernelIndex, nameID, bufferHandle);
+        public void DispatchCompute(ComputeShader cs, int kernelIndex, int threadGroupsX, int threadGroupsY, int threadGroupsZ) =>
+            m_WrappedCommandBuffer.DispatchCompute(cs, kernelIndex, threadGroupsX, threadGroupsY, threadGroupsZ);
+        public void DispatchCompute(ComputeShader cs, int kernelIndex, ComputeBuffer indirectBuffer, uint argsOffset) =>
+            m_WrappedCommandBuffer.DispatchCompute(cs, kernelIndex, indirectBuffer, argsOffset);
+        public void DispatchCompute(ComputeShader cs, int kernelIndex, GraphicsBuffer indirectBuffer, uint argsOffset) =>
+            m_WrappedCommandBuffer.DispatchCompute(cs, kernelIndex, indirectBuffer, argsOffset);
+        public void EnableKeyword(ComputeShader cs, in LocalKeyword keyword) => m_WrappedCommandBuffer.EnableKeyword(cs, keyword);
+        public void DisableKeyword(ComputeShader cs, in LocalKeyword keyword) => m_WrappedCommandBuffer.DisableKeyword(cs, keyword);
+        public void SetKeyword(ComputeShader cs, in LocalKeyword keyword, bool value) => m_WrappedCommandBuffer.SetKeyword(cs, keyword, value);
+        public void SetBufferData(GraphicsBuffer buffer, System.Array data) => m_WrappedCommandBuffer.SetBufferData(buffer, data);
+        public void SetBufferData(ComputeBuffer buffer, System.Array data) => m_WrappedCommandBuffer.SetBufferData(buffer, data);
 
         public void SetRenderTarget(RenderTargetIdentifier rt) => m_WrappedCommandBuffer.SetRenderTarget(rt);
         public void SetRenderTarget(RenderTargetIdentifier rt, RenderBufferLoadAction loadAction, RenderBufferStoreAction storeAction) =>

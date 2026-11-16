@@ -182,4 +182,98 @@ namespace Tests
             Notes.Note($"borrowed:{g.name}:{g.nativeRenderPassesEnabled}:{ReferenceEquals(g, Helix.Interop.RenderGraphInterop.GraphOf(graph))}");
         }
     }
+
+    // Buffers of a render graph: two imported, one the graph makes between two compute passes, one only a culled pass
+    // writes; two frames (the second takes the pooled buffer).
+    public class CsGraphBuffers : GameBehaviour
+    {
+        class FillData
+        {
+            public ComputeShader shader;
+            public int kernel;
+            public float scale;
+            public BufferHandle input, output;
+        }
+
+        class UnusedData
+        {
+            public BufferHandle written;
+        }
+
+        void Start()
+        {
+            ComputeShader cs = null;
+            foreach (ComputeShader c in Resources.FindObjectsOfTypeAll<ComputeShader>())
+                if (c.name == "Tests/Fill")
+                    cs = c;
+            int k = cs.FindKernel("Scale");
+            cs.SetInt("count", 64);
+            cs.SetInt("offset", 0);
+            cs.SetVector("bias", Vector4.zero);
+            var input = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 64, 4);
+            var output = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 64, 4);
+            float[] values = new float[64];
+            for (int i = 0; i < 64; i++)
+                values[i] = i;
+            input.SetData(values);
+            var graph = new RenderGraph("CsBuffers");
+            var cmd = new CommandBuffer();
+            string line = "graphbuffers";
+            for (int frame = 0; frame < 2; frame++)
+            {
+                graph.BeginRecording(new RenderGraphParameters { commandBuffer = cmd });
+                BufferHandle inH = graph.ImportBuffer(input);
+                BufferHandle outH = graph.ImportBuffer(output);
+                BufferHandle temp = graph.CreateBuffer(new BufferDesc(64, 4) { name = "Temp" });
+                Fill(graph, "First", cs, k, 2, inH, temp);
+                Fill(graph, "Second", cs, k, 3, temp, outH);
+                using (var b = graph.AddComputePass("Unused", out UnusedData data))
+                {
+                    data.written = b.UseBuffer(graph.CreateBuffer(new BufferDesc(64, 4)), AccessFlags.WriteAll);
+                    b.SetRenderFunc((UnusedData d, ComputeGraphContext ctx) => line += ":U");
+                }
+                graph.EndRecordingAndExecute();
+                Graphics.ExecuteCommandBuffer(cmd);
+                cmd.Clear();
+                float[] got = new float[64];
+                output.GetData(got);
+                RenderGraphStatistics s = graph.statistics;
+                line += $":{got[1]:F1}/{got[63]:F1}/{s.passes}/{s.culledPasses}/{s.buffers}/{s.pooledBuffersCreated}/{s.pooledBuffers}";
+                graph.EndFrame();
+            }
+            bool threw = false;
+            try
+            {
+                graph.GetBufferDesc(BufferHandle.nullHandle);
+            }
+            catch (ArgumentException)
+            {
+                threw = true;
+            }
+            Notes.Note(line + ":" + threw);
+            graph.Cleanup();
+            cmd.Release();
+            input.Release();
+            output.Release();
+        }
+
+        static void Fill(RenderGraph graph, string name, ComputeShader cs, int k, float scale, BufferHandle input, BufferHandle output)
+        {
+            using (var b = graph.AddComputePass(name, out FillData data))
+            {
+                data.shader = cs;
+                data.kernel = k;
+                data.scale = scale;
+                data.input = b.UseBuffer(input, AccessFlags.Read);
+                data.output = b.UseBuffer(output, AccessFlags.WriteAll);
+                b.SetRenderFunc((FillData d, ComputeGraphContext ctx) =>
+                {
+                    ctx.cmd.SetComputeFloatParam(d.shader, "scale", d.scale);
+                    ctx.cmd.SetComputeBufferParam(d.shader, d.kernel, "input", (GraphicsBuffer)d.input);
+                    ctx.cmd.SetComputeBufferParam(d.shader, d.kernel, "output", (GraphicsBuffer)d.output);
+                    ctx.cmd.DispatchCompute(d.shader, d.kernel, 1, 1, 1);
+                });
+            }
+        }
+    }
 }

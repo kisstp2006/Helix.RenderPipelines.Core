@@ -237,6 +237,58 @@ namespace helix::rendering
         return u64(h.execution) << 32 | h.index;
     }
 
+    u64 GraphNative::ImportBuffer(u64 graph, u64 buffer)
+    {
+        RenderGraph* g = RenderGraph::Find(graph);
+        return g ? Pack(g->ImportBuffer(engine::GraphicsBuffer::Find(buffer))) : 0;
+    }
+
+    u64 GraphNative::CreateBuffer(u64 graph, BufferDescData desc, StringView name)
+    {
+        RenderGraph* g = RenderGraph::Find(graph);
+        return g ? Pack(g->CreateBuffer(BufferDescOf(desc, name))) : 0;
+    }
+
+    BufferDescData GraphNative::GetBufferDesc(u64 graph, u64 buffer)
+    {
+        RenderGraph* g = RenderGraph::Find(graph);
+        BufferDescData d;
+        if (!g)
+            return d;
+        const BufferDesc& desc = g->GetBufferDesc(UnpackBuffer(buffer));
+        d.count = desc.count;
+        d.stride = desc.stride;
+        d.target = i32(desc.target);
+        d.usageFlags = desc.usageFlags;
+        return d;
+    }
+
+    String GraphNative::BufferName(u64 graph, u64 buffer)
+    {
+        RenderGraph* g = RenderGraph::Find(graph);
+        return g ? g->GetBufferDesc(UnpackBuffer(buffer)).name : String();
+    }
+
+    i32 GraphNative::UseBuffer(u64 builder, u64 buffer, i32 flags)
+    {
+        return Op(builder, [&](RenderGraphBuilder& b) { b.UseBuffer(UnpackBuffer(buffer), AccessFlags(flags)); });
+    }
+
+    u64 GraphNative::CreateTransientBuffer(u64 builder, BufferDescData desc, StringView name)
+    {
+        RenderGraphBuilder* b = BuilderOf(builder);
+        if (!b || !b->graph_)
+            return 0;
+        return Pack(b->CreateTransientBuffer(BufferDescOf(desc, name)));
+    }
+
+    u64 GraphNative::ResolveBuffer(u64 buffer)
+    {
+        RenderGraph* g = RenderGraph::Executing();
+        engine::GraphicsBuffer* b = g ? g->Resolve(UnpackBuffer(buffer)) : nullptr;
+        return b ? b->Id() : 0;
+    }
+
     u64 GraphNative::AddPass(u64 graph, StringView name, i32 kind)
     {
         RenderGraph* g = RenderGraph::Find(graph);

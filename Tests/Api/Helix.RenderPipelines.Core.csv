@@ -5,6 +5,7 @@ Rendering.BaseCommandBuffer,DisableShaderKeyword,void DisableShaderKeyword(strin
 Rendering.BaseCommandBuffer,EnableKeyword,void EnableKeyword(ref GlobalKeyword)
 Rendering.BaseCommandBuffer,EnableShaderKeyword,void EnableShaderKeyword(string)
 Rendering.BaseCommandBuffer,EndSample,void EndSample(string)
+Rendering.BaseCommandBuffer,SetGlobalBuffer,"void SetGlobalBuffer(int, GraphicsBuffer) / void SetGlobalBuffer(string, GraphicsBuffer) / void SetGlobalBuffer(int, ComputeBuffer) / void SetGlobalBuffer(string, ComputeBuffer)"
 Rendering.BaseCommandBuffer,SetGlobalColor,"void SetGlobalColor(int, Color)"
 Rendering.BaseCommandBuffer,SetGlobalFloat,"void SetGlobalFloat(int, float) / void SetGlobalFloat(string, float)"
 Rendering.BaseCommandBuffer,SetGlobalFloatArray,"void SetGlobalFloatArray(int, float[])"
@@ -48,6 +49,21 @@ Rendering.ColorParameter,hdr,bool hdr
 Rendering.ColorParameter,showAlpha,bool showAlpha
 Rendering.ColorParameter,showEyeDropper,bool showEyeDropper
 Rendering.CommandBufferHelpers,GetNativeCommandBuffer,static CommandBuffer GetNativeCommandBuffer(UnsafeCommandBuffer)
+Rendering.ComputeCommandBuffer,DisableKeyword,"void DisableKeyword(ComputeShader, ref LocalKeyword)"
+Rendering.ComputeCommandBuffer,DispatchCompute,"void DispatchCompute(ComputeShader, int, int, int, int) / void DispatchCompute(ComputeShader, int, ComputeBuffer, uint) / void DispatchCompute(ComputeShader, int, GraphicsBuffer, uint)"
+Rendering.ComputeCommandBuffer,EnableKeyword,"void EnableKeyword(ComputeShader, ref LocalKeyword)"
+Rendering.ComputeCommandBuffer,SetBufferData,"void SetBufferData(GraphicsBuffer, Array) / void SetBufferData(ComputeBuffer, Array)"
+Rendering.ComputeCommandBuffer,SetComputeBufferParam,"void SetComputeBufferParam(ComputeShader, int, int, ComputeBuffer) / void SetComputeBufferParam(ComputeShader, int, string, ComputeBuffer) / void SetComputeBufferParam(ComputeShader, int, int, GraphicsBuffer) / void SetComputeBufferParam(ComputeShader, int, string, GraphicsBuffer) / void SetComputeBufferParam(ComputeShader, int, int, GraphicsBufferHandle)"
+Rendering.ComputeCommandBuffer,SetComputeFloatParam,"void SetComputeFloatParam(ComputeShader, int, float) / void SetComputeFloatParam(ComputeShader, string, float)"
+Rendering.ComputeCommandBuffer,SetComputeFloatParams,"void SetComputeFloatParams(ComputeShader, int, params float[]) / void SetComputeFloatParams(ComputeShader, string, params float[])"
+Rendering.ComputeCommandBuffer,SetComputeIntParam,"void SetComputeIntParam(ComputeShader, int, int) / void SetComputeIntParam(ComputeShader, string, int)"
+Rendering.ComputeCommandBuffer,SetComputeIntParams,"void SetComputeIntParams(ComputeShader, int, params int[]) / void SetComputeIntParams(ComputeShader, string, params int[])"
+Rendering.ComputeCommandBuffer,SetComputeMatrixArrayParam,"void SetComputeMatrixArrayParam(ComputeShader, int, Matrix4x4[])"
+Rendering.ComputeCommandBuffer,SetComputeMatrixParam,"void SetComputeMatrixParam(ComputeShader, int, Matrix4x4) / void SetComputeMatrixParam(ComputeShader, string, Matrix4x4)"
+Rendering.ComputeCommandBuffer,SetComputeTextureParam,"void SetComputeTextureParam(ComputeShader, int, int, RenderTargetIdentifier) / void SetComputeTextureParam(ComputeShader, int, string, RenderTargetIdentifier) / void SetComputeTextureParam(ComputeShader, int, int, RenderTargetIdentifier, int)"
+Rendering.ComputeCommandBuffer,SetComputeVectorArrayParam,"void SetComputeVectorArrayParam(ComputeShader, int, Vector4[])"
+Rendering.ComputeCommandBuffer,SetComputeVectorParam,"void SetComputeVectorParam(ComputeShader, int, Vector4) / void SetComputeVectorParam(ComputeShader, string, Vector4)"
+Rendering.ComputeCommandBuffer,SetKeyword,"void SetKeyword(ComputeShader, ref LocalKeyword, bool)"
 Rendering.ContextContainer,.ctor,ContextContainer()
 Rendering.ContextContainer,Contains,bool Contains<T>()
 Rendering.ContextContainer,Create,T Create<T>()
@@ -359,13 +375,24 @@ Rendering.RenderGraphModule.AccessFlags,ReadWrite,Rendering.RenderGraphModule.Ac
 Rendering.RenderGraphModule.AccessFlags,Write,Rendering.RenderGraphModule.AccessFlags.Write = 2
 Rendering.RenderGraphModule.AccessFlags,WriteAll,Rendering.RenderGraphModule.AccessFlags.WriteAll = 6
 Rendering.RenderGraphModule.BaseRenderFunc,delegate,"void (PassData, ContextType)"
+Rendering.RenderGraphModule.BufferDesc,.ctor,"BufferDesc(int, int) / BufferDesc(int, int, GraphicsBuffer.Target)"
+Rendering.RenderGraphModule.BufferDesc,count,int count
+Rendering.RenderGraphModule.BufferDesc,name,string name
+Rendering.RenderGraphModule.BufferDesc,stride,int stride
+Rendering.RenderGraphModule.BufferDesc,target,GraphicsBuffer.Target target
+Rendering.RenderGraphModule.BufferDesc,usageFlags,GraphicsBuffer.UsageFlags usageFlags
+Rendering.RenderGraphModule.BufferHandle,IsValid,bool IsValid()
+Rendering.RenderGraphModule.BufferHandle,nullHandle,static BufferHandle nullHandle { get; }
+Rendering.RenderGraphModule.BufferHandle,operators,"Implicit(BufferHandle) / Equality(BufferHandle, BufferHandle) / Inequality(BufferHandle, BufferHandle)"
 Rendering.RenderGraphModule.ComputeGraphContext,cmd,ComputeCommandBuffer cmd
 Rendering.RenderGraphModule.ComputeGraphContext,defaultResources,RenderGraphDefaultResources defaultResources
 Rendering.RenderGraphModule.IBaseRenderGraphBuilder,AllowGlobalStateModification,void AllowGlobalStateModification(bool)
 Rendering.RenderGraphModule.IBaseRenderGraphBuilder,AllowPassCulling,void AllowPassCulling(bool)
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,CreateTransientBuffer,BufferHandle CreateTransientBuffer(ref BufferDesc) / BufferHandle CreateTransientBuffer(ref BufferHandle)
 Rendering.RenderGraphModule.IBaseRenderGraphBuilder,CreateTransientTexture,TextureHandle CreateTransientTexture(ref TextureDesc) / TextureHandle CreateTransientTexture(ref TextureHandle)
 Rendering.RenderGraphModule.IBaseRenderGraphBuilder,SetGlobalTextureAfterPass,"void SetGlobalTextureAfterPass(ref TextureHandle, int)"
 Rendering.RenderGraphModule.IBaseRenderGraphBuilder,UseAllGlobalTextures,void UseAllGlobalTextures(bool)
+Rendering.RenderGraphModule.IBaseRenderGraphBuilder,UseBuffer,"BufferHandle UseBuffer(ref BufferHandle, AccessFlags = Read)"
 Rendering.RenderGraphModule.IBaseRenderGraphBuilder,UseGlobalTexture,"void UseGlobalTexture(int, AccessFlags = Read)"
 Rendering.RenderGraphModule.IBaseRenderGraphBuilder,UseRendererList,void UseRendererList(ref RendererListHandle)
 Rendering.RenderGraphModule.IBaseRenderGraphBuilder,UseTexture,"void UseTexture(ref TextureHandle, AccessFlags = Read)"
@@ -387,14 +414,17 @@ Rendering.RenderGraphModule.RenderGraph,AddRasterRenderPass,"IRasterRenderGraphB
 Rendering.RenderGraphModule.RenderGraph,AddUnsafePass,"IUnsafeRenderGraphBuilder AddUnsafePass<PassData>(string, out PassData)"
 Rendering.RenderGraphModule.RenderGraph,BeginRecording,void BeginRecording(ref RenderGraphParameters)
 Rendering.RenderGraphModule.RenderGraph,Cleanup,void Cleanup()
+Rendering.RenderGraphModule.RenderGraph,CreateBuffer,BufferHandle CreateBuffer(ref BufferDesc) / BufferHandle CreateBuffer(ref BufferHandle)
 Rendering.RenderGraphModule.RenderGraph,CreateRendererList,RendererListHandle CreateRendererList(ref RendererListDesc) / RendererListHandle CreateRendererList(ref RendererListParams)
 Rendering.RenderGraphModule.RenderGraph,CreateShadowRendererList,RendererListHandle CreateShadowRendererList(ref ShadowDrawingSettings)
 Rendering.RenderGraphModule.RenderGraph,CreateSkyboxRendererList,RendererListHandle CreateSkyboxRendererList(ref Camera)
 Rendering.RenderGraphModule.RenderGraph,CreateTexture,TextureHandle CreateTexture(ref TextureDesc) / TextureHandle CreateTexture(TextureHandle)
 Rendering.RenderGraphModule.RenderGraph,EndFrame,void EndFrame()
 Rendering.RenderGraphModule.RenderGraph,EndRecordingAndExecute,void EndRecordingAndExecute()
+Rendering.RenderGraphModule.RenderGraph,GetBufferDesc,BufferDesc GetBufferDesc(ref BufferHandle)
 Rendering.RenderGraphModule.RenderGraph,GetTextureDesc,TextureDesc GetTextureDesc(TextureHandle)
 Rendering.RenderGraphModule.RenderGraph,ImportBackbuffer,"TextureHandle ImportBackbuffer(RenderTargetIdentifier) / TextureHandle ImportBackbuffer(RenderTargetIdentifier, RenderTargetInfo, ImportResourceParams = null)"
+Rendering.RenderGraphModule.RenderGraph,ImportBuffer,"BufferHandle ImportBuffer(GraphicsBuffer, bool = False)"
 Rendering.RenderGraphModule.RenderGraph,ImportTexture,"TextureHandle ImportTexture(RTHandle) / TextureHandle ImportTexture(RTHandle, ImportResourceParams)"
 Rendering.RenderGraphModule.RenderGraph,defaultResources,RenderGraphDefaultResources defaultResources { get; }
 Rendering.RenderGraphModule.RenderGraph,isRenderGraphViewerActive,static bool isRenderGraphViewerActive { get; }
@@ -469,8 +499,23 @@ Rendering.TextureParameter,.ctor,"TextureParameter(Texture, bool = False) / Text
 Rendering.TextureParameter,dimension,TextureDimension dimension
 Rendering.UnsafeCommandBuffer,Blit,"void Blit(RenderTargetIdentifier, RenderTargetIdentifier) / void Blit(RenderTargetIdentifier, RenderTargetIdentifier, Material) / void Blit(RenderTargetIdentifier, RenderTargetIdentifier, Material, int) / void Blit(Texture, RenderTargetIdentifier)"
 Rendering.UnsafeCommandBuffer,CopyTexture,"void CopyTexture(RenderTargetIdentifier, RenderTargetIdentifier) / void CopyTexture(RenderTargetIdentifier, int, int, RenderTargetIdentifier, int, int)"
+Rendering.UnsafeCommandBuffer,DisableKeyword,"void DisableKeyword(ComputeShader, ref LocalKeyword)"
+Rendering.UnsafeCommandBuffer,DispatchCompute,"void DispatchCompute(ComputeShader, int, int, int, int) / void DispatchCompute(ComputeShader, int, ComputeBuffer, uint) / void DispatchCompute(ComputeShader, int, GraphicsBuffer, uint)"
+Rendering.UnsafeCommandBuffer,EnableKeyword,"void EnableKeyword(ComputeShader, ref LocalKeyword)"
 Rendering.UnsafeCommandBuffer,GenerateMips,void GenerateMips(RenderTargetIdentifier)
 Rendering.UnsafeCommandBuffer,ResolveAntiAliasedSurface,"void ResolveAntiAliasedSurface(RenderTexture, RenderTexture = null)"
+Rendering.UnsafeCommandBuffer,SetBufferData,"void SetBufferData(GraphicsBuffer, Array) / void SetBufferData(ComputeBuffer, Array)"
+Rendering.UnsafeCommandBuffer,SetComputeBufferParam,"void SetComputeBufferParam(ComputeShader, int, int, ComputeBuffer) / void SetComputeBufferParam(ComputeShader, int, string, ComputeBuffer) / void SetComputeBufferParam(ComputeShader, int, int, GraphicsBuffer) / void SetComputeBufferParam(ComputeShader, int, string, GraphicsBuffer) / void SetComputeBufferParam(ComputeShader, int, int, GraphicsBufferHandle)"
+Rendering.UnsafeCommandBuffer,SetComputeFloatParam,"void SetComputeFloatParam(ComputeShader, int, float) / void SetComputeFloatParam(ComputeShader, string, float)"
+Rendering.UnsafeCommandBuffer,SetComputeFloatParams,"void SetComputeFloatParams(ComputeShader, int, params float[]) / void SetComputeFloatParams(ComputeShader, string, params float[])"
+Rendering.UnsafeCommandBuffer,SetComputeIntParam,"void SetComputeIntParam(ComputeShader, int, int) / void SetComputeIntParam(ComputeShader, string, int)"
+Rendering.UnsafeCommandBuffer,SetComputeIntParams,"void SetComputeIntParams(ComputeShader, int, params int[]) / void SetComputeIntParams(ComputeShader, string, params int[])"
+Rendering.UnsafeCommandBuffer,SetComputeMatrixArrayParam,"void SetComputeMatrixArrayParam(ComputeShader, int, Matrix4x4[])"
+Rendering.UnsafeCommandBuffer,SetComputeMatrixParam,"void SetComputeMatrixParam(ComputeShader, int, Matrix4x4) / void SetComputeMatrixParam(ComputeShader, string, Matrix4x4)"
+Rendering.UnsafeCommandBuffer,SetComputeTextureParam,"void SetComputeTextureParam(ComputeShader, int, int, RenderTargetIdentifier) / void SetComputeTextureParam(ComputeShader, int, string, RenderTargetIdentifier) / void SetComputeTextureParam(ComputeShader, int, int, RenderTargetIdentifier, int)"
+Rendering.UnsafeCommandBuffer,SetComputeVectorArrayParam,"void SetComputeVectorArrayParam(ComputeShader, int, Vector4[])"
+Rendering.UnsafeCommandBuffer,SetComputeVectorParam,"void SetComputeVectorParam(ComputeShader, int, Vector4) / void SetComputeVectorParam(ComputeShader, string, Vector4)"
+Rendering.UnsafeCommandBuffer,SetKeyword,"void SetKeyword(ComputeShader, ref LocalKeyword, bool)"
 Rendering.UnsafeCommandBuffer,SetRenderTarget,"void SetRenderTarget(RenderTargetIdentifier) / void SetRenderTarget(RenderTargetIdentifier, RenderBufferLoadAction, RenderBufferStoreAction) / void SetRenderTarget(RenderTargetIdentifier, int, CubemapFace, int) / void SetRenderTarget(RenderTargetIdentifier, RenderTargetIdentifier) / void SetRenderTarget(RenderTargetIdentifier[], RenderTargetIdentifier)"
 Rendering.Vector2Parameter,.ctor,"Vector2Parameter(Vector2, bool = False)"
 Rendering.Vector2Parameter,Interp,"void Interp(Vector2, Vector2, float)"

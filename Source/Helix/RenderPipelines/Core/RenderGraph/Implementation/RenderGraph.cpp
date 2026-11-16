@@ -51,6 +51,8 @@ namespace helix::rendering
             PassKind kind = PassKind::Raster;
             detail::PassCallable* run = nullptr;
             Array<Use> uses = Array<Use>();
+            // Buffers by their index in the frame's buffers.
+            Array<Use> buffers = Array<Use>();
             Attachment colors[RenderGraph::kMaxMRTCount] = {};
             i32 colorCount = 0;
             Attachment depth;
@@ -100,6 +102,29 @@ namespace helix::rendering
             bool isImported() const { return imported != nullptr; }
         };
 
+        struct BufferPoolEntry
+        {
+            engine::GraphicsBuffer* buffer = nullptr;
+            BufferDesc desc;
+            bool inUse = false;
+            i32 lastFrame = 0;
+        };
+
+        struct GraphBuffer
+        {
+            BufferDesc desc;
+            engine::GraphicsBuffer* imported = nullptr;
+            BufferPoolEntry* pooled = nullptr;
+            i32 firstPass = -1, lastPass = -1;
+
+            engine::GraphicsBuffer* Buffer() const { return imported ? imported : pooled ? pooled->buffer : nullptr; }
+        };
+
+        bool SameBuffer(const BufferDesc& a, const BufferDesc& b)
+        {
+            return a.count == b.count && a.stride == b.stride && a.target == b.target && a.usageFlags == b.usageFlags;
+        }
+
         struct GraphList
         {
             engine::RendererUtils::RendererList list;
@@ -128,6 +153,8 @@ namespace helix::rendering
     {
         RenderGraphParameters parameters;
         Array<GraphTexture> textures = Array<GraphTexture>();
+        Array<GraphBuffer> buffers = Array<GraphBuffer>();
+        Array<BufferPoolEntry*> bufferPool = Array<BufferPoolEntry*>();
         Array<GraphList> lists = Array<GraphList>();
         Array<Pass> passes = Array<Pass>();
         Array<Group> groups = Array<Group>();
@@ -175,8 +202,35 @@ namespace helix::rendering
                 if (t.pooled)
                     t.pooled->inUse = false;
             textures.Clear();
+            for (GraphBuffer& b : buffers)
+                if (b.pooled)
+                    b.pooled->inUse = false;
+            buffers.Clear();
             lists.Clear();
             groups.Clear();
+        }
+
+        BufferPoolEntry* AcquireBuffer(const BufferDesc& desc, RenderGraphStatistics& stats)
+        {
+            for (BufferPoolEntry* e : bufferPool)
+                if (!e->inUse && SameBuffer(e->desc, desc))
+                {
+                    e->inUse = true;
+                    e->lastFrame = frame;
+                    return e;
+                }
+            engine::GraphicsBuffer* b = engine::GraphicsBuffer::Create(desc.target, desc.usageFlags, desc.count, desc.stride);
+            if (!b)
+                return nullptr;
+            b->SetName(desc.name.Empty() ? StringView("RenderGraphBuffer") : StringView(desc.name));
+            auto* e = new BufferPoolEntry();
+            e->buffer = b;
+            e->desc = desc;
+            e->inUse = true;
+            e->lastFrame = frame;
+            bufferPool.Push(e);
+            stats.pooledBuffersCreated++;
+            return e;
         }
 
         PoolEntry* Acquire(const TextureDesc& desc, Vector2Int size, RenderGraphStatistics& stats)
@@ -323,6 +377,26 @@ namespace helix::rendering
         p.uses.Push({t, flags});
     }
 
+    void RenderGraphBuilder::UseBuffer(BufferHandle buffer, AccessFlags flags)
+    {
+        RenderGraph::Impl& m = *graph_->impl_;
+        m.SetPassError(ErrorKind::None, String());
+        if (u32 b = graph_->CheckBuffer(buffer))
+            m.passes[pass_].buffers.Push({b, flags});
+        else
+            m.SetPassError(graph_->errorKind_, graph_->error_);
+    }
+
+    BufferHandle RenderGraphBuilder::CreateTransientBuffer(const BufferDesc& desc)
+    {
+        BufferHandle h = graph_->CreateBuffer(desc);
+        if (h.IsValid())
+            graph_->impl_->passes[pass_].buffers.Push({h.index, AccessFlags::ReadWrite});
+        return h;
+    }
+
+    BufferHandle RenderGraphBuilder::CreateTransientBuffer(BufferHandle buffer) { return CreateTransientBuffer(graph_->GetBufferDesc(buffer)); }
+
     void RenderGraphBuilder::UseGlobalTexture(i32 propertyId, AccessFlags) { graph_->impl_->passes[pass_].globalReads.Push(propertyId); }
     void RenderGraphBuilder::UseAllGlobalTextures(bool enable) { graph_->impl_->passes[pass_].allGlobals = enable; }
 
@@ -443,6 +517,7 @@ namespace helix::rendering
         recording_ = true;
         execution_ = ++gNextExecution;
         impl_->textures.Emplace();
+        impl_->buffers.Emplace();
         impl_->lists.Emplace();
         impl_->openPass = -1;
         ImportDefaults();
@@ -487,6 +562,48 @@ namespace helix::rendering
             return 0;
         }
         return texture.index;
+    }
+
+    u32 RenderGraph::CheckBuffer(BufferHandle buffer)
+    {
+        if (!buffer.IsValid() || buffer.execution != execution_ || buffer.index >= impl_->buffers.Size())
+        {
+            SetError(ErrorKind::Argument, "The buffer handle is not valid (null, or made in another frame or graph).");
+            return 0;
+        }
+        return buffer.index;
+    }
+
+    BufferHandle RenderGraph::ImportBuffer(engine::GraphicsBuffer* buffer)
+    {
+        if (!recording_ || !buffer)
+            return !buffer ? Fail(ErrorKind::Argument, "RenderGraph.ImportBuffer: the buffer is null.", BufferHandle{})
+                           : Fail(ErrorKind::InvalidOperation, "RenderGraph.ImportBuffer: the graph is not recording.", BufferHandle{});
+        GraphBuffer& b = impl_->buffers.Emplace();
+        b.imported = buffer;
+        b.desc = BufferDesc(buffer->count(), buffer->stride(), buffer->target());
+        b.desc.usageFlags = buffer->usageFlags();
+        b.desc.name = buffer->name();
+        return {u32(impl_->buffers.Size() - 1), execution_};
+    }
+
+    BufferHandle RenderGraph::CreateBuffer(const BufferDesc& desc)
+    {
+        if (!recording_)
+            return Fail(ErrorKind::InvalidOperation, "RenderGraph.CreateBuffer: the graph is not recording.", BufferHandle{});
+        if (desc.count <= 0 || desc.stride <= 0)
+            return Fail(ErrorKind::Argument, Format("RenderGraph.CreateBuffer: count ({}) and stride ({}) must be greater than 0.", desc.count, desc.stride),
+                        BufferHandle{});
+        impl_->buffers.Emplace().desc = desc;
+        return {u32(impl_->buffers.Size() - 1), execution_};
+    }
+
+    const BufferDesc& RenderGraph::GetBufferDesc(BufferHandle buffer) const
+    {
+        static const BufferDesc none;
+        if (!buffer.IsValid() || buffer.execution != execution_ || buffer.index >= impl_->buffers.Size())
+            return none;
+        return impl_->buffers[buffer.index].desc;
     }
 
     TextureHandle RenderGraph::ImportTexture(RTHandle* handle, const ImportResourceParams& params)
@@ -591,6 +708,13 @@ namespace helix::rendering
     {
         Impl& m = *impl_;
         m.frame++;
+        for (usize i = m.bufferPool.Size(); i-- > 0;)
+            if (!m.bufferPool[i]->inUse && m.frame - m.bufferPool[i]->lastFrame > kStaleFrames)
+            {
+                engine::GraphicsBuffer::Release(m.bufferPool[i]->buffer);
+                delete m.bufferPool[i];
+                m.bufferPool.RemoveAt(i);
+            }
         for (usize i = m.pool.Size(); i-- > 0;)
             if (!m.pool[i]->inUse && m.frame - m.pool[i]->lastFrame > kStaleFrames)
             {
@@ -603,6 +727,12 @@ namespace helix::rendering
     void RenderGraph::Cleanup()
     {
         Impl& m = *impl_;
+        for (BufferPoolEntry* e : m.bufferPool)
+        {
+            engine::GraphicsBuffer::Release(e->buffer);
+            delete e;
+        }
+        m.bufferPool.Clear();
         for (PoolEntry* e : m.pool)
         {
             if (RTHandle::Find(e->handle ? e->handle->Id() : 0))
@@ -641,6 +771,13 @@ namespace helix::rendering
         return impl_->textures[texture.index].Handle();
     }
 
+    engine::GraphicsBuffer* RenderGraph::Resolve(BufferHandle buffer) const
+    {
+        if (!executing_ || buffer.execution != execution_ || buffer.index == 0 || buffer.index >= impl_->buffers.Size())
+            return nullptr;
+        return impl_->buffers[buffer.index].Buffer();
+    }
+
     engine::RendererUtils::RendererList RenderGraph::ResolveList(RendererListHandle list) const
     {
         if (!executing_ || list.execution != execution_ || list.index == 0 || list.index >= impl_->lists.Size())
@@ -676,6 +813,12 @@ namespace helix::rendering
             {
                 t.pooled->inUse = false;
                 t.pooled = nullptr;
+            }
+        for (GraphBuffer& b : m.buffers)
+            if (b.pooled)
+            {
+                b.pooled->inUse = false;
+                b.pooled = nullptr;
             }
         recording_ = false;
         return error_.Empty();
@@ -735,6 +878,11 @@ namespace helix::rendering
         needed.Resize(textures.Size());
         for (usize t = 1; t < textures.Size(); t++)
             needed[t] = textures[t].isImported() && !textures[t].import.discardOnLastUse;
+        // Imported buffers keep what is written into them.
+        Array<u8> neededBuffers;
+        neededBuffers.Resize(buffers.Size());
+        for (usize b = 1; b < buffers.Size(); b++)
+            neededBuffers[b] = buffers[b].imported != nullptr;
         Array<i32> neededGlobals;
         bool allGlobals = false;
         for (u32 p = count; p-- > 0;)
@@ -747,6 +895,8 @@ namespace helix::rendering
             }
             bool alive = !pass.allowCulling || pass.globalState;
             pass.All([&](u32 t, AccessFlags f) { alive = alive || (Writes(f) && needed[t]); });
+            for (const Use& b : pass.buffers)
+                alive = alive || (Writes(b.flags) && neededBuffers[b.texture]);
             for (const GlobalAfter& g : pass.globalsAfter)
                 alive = alive || allGlobals || Contains(neededGlobals, g.propertyId);
             pass.culled = !alive;
@@ -770,6 +920,12 @@ namespace helix::rendering
                 if (Reads(f))
                     needed[t] = 1;
             });
+            for (const Use& b : pass.buffers)
+                if (Writes(b.flags))
+                    neededBuffers[b.texture] = 0;
+            for (const Use& b : pass.buffers)
+                if (Reads(b.flags))
+                    neededBuffers[b.texture] = 1;
             for (i32 id : pass.globalReads)
                 if (!Contains(neededGlobals, id))
                     neededGlobals.Push(id);
@@ -790,7 +946,17 @@ namespace helix::rendering
             });
             for (const GlobalAfter& g : pass.globalsAfter)
                 textures[g.texture].lastPass = i32(count);
+            for (const Use& u : pass.buffers)
+            {
+                GraphBuffer& b = buffers[u.texture];
+                if (b.firstPass < 0)
+                    b.firstPass = i32(p);
+                b.lastPass = i32(p);
+            }
         }
+        for (usize b = 1; b < buffers.Size(); b++)
+            if (!buffers[b].imported && buffers[b].firstPass >= 0)
+                stats.buffers++;
         for (usize t = 1; t < textures.Size(); t++)
             if (!textures[t].isImported() && textures[t].firstPass >= 0)
                 stats.textures++;
@@ -844,6 +1010,13 @@ namespace helix::rendering
                 continue;
             tex.pooled = Acquire(tex.desc, tex.desc.Size(reference), stats);
         }
+        for (usize i = 1; i < buffers.Size(); i++)
+        {
+            GraphBuffer& b = buffers[i];
+            if (b.imported || b.pooled || b.firstPass < i32(first) || b.firstPass > i32(last))
+                continue;
+            b.pooled = AcquireBuffer(b.desc, stats);
+        }
     }
 
     void RenderGraph::Impl::Free(u32 first, u32 last)
@@ -855,6 +1028,15 @@ namespace helix::rendering
             {
                 tex.pooled->inUse = false;
                 tex.pooled = nullptr;
+            }
+        }
+        for (usize i = 1; i < buffers.Size(); i++)
+        {
+            GraphBuffer& b = buffers[i];
+            if (b.pooled && b.lastPass >= i32(first) && b.lastPass <= i32(last))
+            {
+                b.pooled->inUse = false;
+                b.pooled = nullptr;
             }
         }
     }
@@ -914,6 +1096,7 @@ namespace helix::rendering
             Free(first, last);
         }
         stats.pooledTextures = i32(pool.Size());
+        stats.pooledBuffers = i32(bufferPool.Size());
     }
 
     // Clears of the textures a non raster pass first uses (raster passes clear by their load action).
