@@ -168,11 +168,10 @@ if(TARGET helix_render_pipelines_core_tests)
     endif()
     # Once more on the coreclr starter (as Android hosts the runtime).
     if(HELIX_PLATFORM STREQUAL "windows" OR HELIX_PLATFORM STREQUAL "linux")
-        add_test(NAME helix_render_pipelines_core_tests_coreclr COMMAND helix_render_pipelines_core_tests)
-        set_tests_properties(helix_render_pipelines_core_tests_coreclr PROPERTIES ENVIRONMENT "HELIX_DOTNET_RUNTIME=coreclr")
+        helix_add_test_run(helix_render_pipelines_core_tests_coreclr PROGRAM helix_render_pipelines_core_tests ENVIRONMENT HELIX_DOTNET_RUNTIME=coreclr)
         # The render thread and persistent blocks on.
-        add_test(NAME helix_render_pipelines_core_tests_render_thread COMMAND helix_render_pipelines_core_tests)
-        set_tests_properties(helix_render_pipelines_core_tests_render_thread PROPERTIES ENVIRONMENT "HELIX_RENDER_THREAD=1;HELIX_RENDER_BATCHING=1")
+        helix_add_test_run(helix_render_pipelines_core_tests_render_thread PROGRAM helix_render_pipelines_core_tests
+                           ENVIRONMENT HELIX_RENDER_THREAD=1 HELIX_RENDER_BATCHING=1)
     endif()
 endif()
 
@@ -185,8 +184,7 @@ endif()
 
 if(TARGET helix_render_pipelines_core_tests AND HELIX_ENABLE_ASAN AND HELIX_PLATFORM STREQUAL "linux")
     helix_dependency_dir(scripting_dir Scripting)
-    set(suppressions "LSAN_OPTIONS=suppressions=${scripting_dir}/Tests/Support/LeakSuppressions.txt")
-    set_tests_properties(helix_render_pipelines_core_tests PROPERTIES ENVIRONMENT "${suppressions}")
-    set_tests_properties(helix_render_pipelines_core_tests_coreclr PROPERTIES ENVIRONMENT "HELIX_DOTNET_RUNTIME=coreclr;${suppressions}")
-    set_tests_properties(helix_render_pipelines_core_tests_render_thread PROPERTIES ENVIRONMENT "HELIX_RENDER_THREAD=1;HELIX_RENDER_BATCHING=1;${suppressions}")
+    foreach(run helix_render_pipelines_core_tests helix_render_pipelines_core_tests_coreclr helix_render_pipelines_core_tests_render_thread)
+        helix_add_test_run_environment(${run} "LSAN_OPTIONS=suppressions=${scripting_dir}/Tests/Support/LeakSuppressions.txt")
+    endforeach()
 endif()
